@@ -17,7 +17,7 @@ public class UserController {
     @PostMapping("/users")
     public void createUser(@RequestBody UserDto userDto) {
         User user = userDto.mapToUser(userDto);
-        if (user.getLogin().contains(" ") || !user.getEmail().contains("@")) {
+        if (validateDate(user)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -27,7 +27,7 @@ public class UserController {
 
     @PutMapping("/users")
     public void updateUser(@RequestBody User user) {
-        if (user.getLogin().contains(" ") || !user.getEmail().contains("@")) {
+        if (validateDate(user)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -38,6 +38,10 @@ public class UserController {
     @GetMapping("/users")
     public Collection<User> returnAllUsers() {
         return users.values();
+    }
+
+    private boolean validateDate(User user) {
+        return user.getLogin().contains(" ") || !user.getEmail().contains("@");
     }
 }
 

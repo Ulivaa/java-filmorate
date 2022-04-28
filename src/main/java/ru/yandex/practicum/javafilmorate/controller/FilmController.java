@@ -19,9 +19,7 @@ public class FilmController {
     @PostMapping("/films")
     public void addFilm(@RequestBody FilmDto filmDto) {
         Film film = filmDto.mapToFilm(filmDto);
-        if ((film.getDescription() != null && film.getDescription().length() > 200)
-                || film.getDuration().isNegative()
-                || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (validateDate(film)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -31,8 +29,7 @@ public class FilmController {
 
     @PutMapping("/films")
     public void updateFilm(@RequestBody Film film) {
-        if (film.getId() == 0 || (film.getDescription() != null && film.getDescription().length() > 200)
-                || film.getDuration().isNegative() || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getId() == 0 || validateDate(film)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -43,6 +40,11 @@ public class FilmController {
     @GetMapping("/films")
     public Collection<Film> returnAllFilms() {
         return films.values();
+    }
+
+    private boolean validateDate(Film film) {
+        return (film.getDescription() != null && film.getDescription().length() > 200)
+                || film.getDuration().isNegative() || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28));
     }
 
 }
