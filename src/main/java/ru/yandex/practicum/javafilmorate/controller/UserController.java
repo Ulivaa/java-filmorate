@@ -1,9 +1,11 @@
 package ru.yandex.practicum.javafilmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.dto.UserDto;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.service.UserService;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -13,35 +15,51 @@ import java.util.Map;
 @RestController
 public class UserController {
     private Map<Integer, User> users = new HashMap<>();
+    private UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/users")
-    public void createUser(@RequestBody UserDto userDto) {
-        User user = userDto.mapToUser(userDto);
-        if (validateDate(user)) {
-            log.error("Неверный формат данных");
-            throw new RuntimeException();
-        }
-        users.put(user.getId(), user);
-        log.info("Добавлен объект {}", user.getLogin());
+    public User addUser(@RequestBody UserDto userDto) {
+        return userService.addUser(userDto);
     }
 
     @PutMapping("/users")
     public void updateUser(@RequestBody User user) {
-        if (validateDate(user)) {
-            log.error("Неверный формат данных");
-            throw new RuntimeException();
-        }
-        users.put(user.getId(), user);
-        log.info("Обновлен объект {}", user.getLogin());
+        userService.updateUser(user);
     }
 
     @GetMapping("/users")
     public Collection<User> returnAllUsers() {
-        return users.values();
+        return userService.returnAllUsers();
     }
 
-    private boolean validateDate(User user) {
-        return user.getLogin().contains(" ") || !user.getEmail().contains("@");
+    @GetMapping("/users/{id}")
+    public User returnUserById(@PathVariable Integer id) {
+        return userService.findUserById(id);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public void addUserFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.addUserFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public void removeUserFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        userService.removeUserFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public Collection<User> returnUserFriends(@PathVariable Integer id) {
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public Collection<User> returnCommonUserFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.getCommonUserFriends(id, otherId);
     }
 }
 

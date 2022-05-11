@@ -5,9 +5,10 @@ import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Objects;
 
 @Data
 @AllArgsConstructor
@@ -19,5 +20,29 @@ public class Film {
     private @NonNull String name;
     private String description;
     private LocalDate releaseDate;
-    private Duration duration;
+    //    @JsonSerialize(using = DurationSerialize.class)
+//    может просто сделать short
+    private Short duration;
+    private HashSet<User> usersLike = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return id == film.getId();
+    }
+
+    public void setUserLike(User user) {
+        usersLike.add(user);
+    }
+
+    public void removeUserLike(User user) {
+        usersLike.remove(user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
