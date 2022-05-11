@@ -28,8 +28,8 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public void updateUser(@RequestBody User user) {
-        userService.updateUser(user);
+    public User updateUser(@RequestBody User user) {
+       return userService.updateUser(user);
     }
 
     @GetMapping("/users")

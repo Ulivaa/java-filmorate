@@ -33,13 +33,15 @@ public class UserService {
         return findUserById(user.getId());
     }
 
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         if (validateDate(user)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
         userStorage.save(user);
         log.info("Обновлен объект {}", user.getLogin());
+        return findUserById(user.getId());
+
     }
 
     public Collection<User> returnAllUsers() {
