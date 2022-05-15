@@ -51,7 +51,7 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.FirstFilmsWithCountLike(count);
+        return filmService.firstFilmsWithCountLike(count);
     }
 }
 

@@ -20,9 +20,8 @@ public class Film {
     private @NonNull String name;
     private String description;
     private LocalDate releaseDate;
-    //    @JsonSerialize(using = DurationSerialize.class)
-//    может просто сделать short
     private Short duration;
+
     private HashSet<User> usersLike = new HashSet<>();
 
     @Override

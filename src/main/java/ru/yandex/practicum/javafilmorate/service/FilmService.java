@@ -50,7 +50,6 @@ public class FilmService {
         return filmStorage.returnAllFilms();
     }
 
-    // не знаю насколько правильно в бизнес логике менять сами данные. и не совсем понимаю как это сделать условно из класса хранилища непосредственно
     public void addUserLike(Integer id, Integer userId) {
         Film film = findFilmById(id);
         User user = userService.findUserById(userId);
@@ -67,26 +66,30 @@ public class FilmService {
         log.info("Удален лайк фильму {}, от пользователя {}", film.getName(), user.getName());
     }
 
-    public Collection<Film> FirstFilmsWithCountLike(Integer count) {
-        // я пыталась сначала вернуть o2.getUsersLike().size() - o1.getUsersLike().size(),
-        // но у меня падала ошибка, когда у фильма нет лайков.
-        // Хотя мне казалось, если я создаю сет через нью сразу, то размер будет равен 0.
-        // Можно ли как-то избежать такого колоза ниже и в одну строку сравнить?
-        return filmStorage.returnAllFilms().stream().sorted((o1, o2) -> {
-            int size1;
-            int size2;
-            if (o1.getUsersLike() == null) {
-                size1 = 0;
-            } else {
-                size1 = o1.getUsersLike().size();
-            }
-            if (o2.getUsersLike() == null) {
-                size2 = 0;
-            } else {
-                size2 = o2.getUsersLike().size();
-            }
-            return size2 - size1;
-        }).limit(count).collect(Collectors.toList());
+    public Collection<Film> firstFilmsWithCountLike(Integer count) {
+//        Попробовала снова нет, явно падает на моменте, когда хочет взять size() у объекта, которого не существует(null).
+//        Не проходит 2 теста Film get Popular count и Film get Popular count 2. Вернула изначальный вариант.
+//        Не понимаю, почему при создании usersLike через new HashSet() он null.
+//        Насколько я понимаю ему должно выделиться место в памяти и при usersLike.size() он должен вернуть 0(как мне кажется)
+//        return filmStorage.returnAllFilms().stream().sorted((o1, o2) -> {
+//            int size1;
+//            int size2;
+//            if (o1.getUsersLike() == null) {
+//                size1 = 0;
+//            } else {
+//                size1 = o1.getUsersLike().size();
+//            }
+//            if (o2.getUsersLike() == null) {
+//                size2 = 0;
+//            } else {
+//                size2 = o2.getUsersLike().size();
+//            }
+//            return size2 - size1;
+//        }).limit(count).collect(Collectors.toList());
+
+        return filmStorage.returnAllFilms().stream().
+                sorted((o1, o2) -> o2.getUsersLike().size() - o1.getUsersLike().size()).
+                limit(count).collect(Collectors.toSet());
     }
 
     private boolean validateDate(Film film) {
