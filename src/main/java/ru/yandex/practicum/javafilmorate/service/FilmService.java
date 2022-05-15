@@ -71,25 +71,25 @@ public class FilmService {
 //        Не проходит 2 теста Film get Popular count и Film get Popular count 2. Вернула изначальный вариант.
 //        Не понимаю, почему при создании usersLike через new HashSet() он null.
 //        Насколько я понимаю ему должно выделиться место в памяти и при usersLike.size() он должен вернуть 0(как мне кажется)
-//        return filmStorage.returnAllFilms().stream().sorted((o1, o2) -> {
-//            int size1;
-//            int size2;
-//            if (o1.getUsersLike() == null) {
-//                size1 = 0;
-//            } else {
-//                size1 = o1.getUsersLike().size();
-//            }
-//            if (o2.getUsersLike() == null) {
-//                size2 = 0;
-//            } else {
-//                size2 = o2.getUsersLike().size();
-//            }
-//            return size2 - size1;
-//        }).limit(count).collect(Collectors.toList());
+        return filmStorage.returnAllFilms().stream().sorted((o1, o2) -> {
+            int size1;
+            int size2;
+            if (o1.getUsersLike() == null) {
+                size1 = 0;
+            } else {
+                size1 = o1.getUsersLike().size();
+            }
+            if (o2.getUsersLike() == null) {
+                size2 = 0;
+            } else {
+                size2 = o2.getUsersLike().size();
+            }
+            return size2 - size1;
+        }).limit(count).collect(Collectors.toList());
 
-        return filmStorage.returnAllFilms().stream().
-                sorted((o1, o2) -> o2.getUsersLike().size() - o1.getUsersLike().size()).
-                limit(count).collect(Collectors.toSet());
+//        return filmStorage.returnAllFilms().stream().
+//                sorted((o1, o2) -> o2.getUsersLike().size() - o1.getUsersLike().size()).
+//                limit(count).collect(Collectors.toSet());
     }
 
     private boolean validateDate(Film film) {
