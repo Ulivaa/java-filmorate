@@ -22,7 +22,7 @@ public class UserDto {
 
     public User mapToUser(UserDto userDto) {
         User user = new User(userDto.getLogin(), userDto.getEmail());
-        if (userDto.getName() == null) {
+        if (userDto.getName() == null || userDto.getName().isBlank()) {
             user.setName(userDto.getLogin());
         } else {
             user.setName(userDto.getName());

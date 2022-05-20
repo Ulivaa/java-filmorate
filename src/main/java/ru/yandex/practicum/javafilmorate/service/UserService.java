@@ -34,6 +34,7 @@ public class UserService {
     }
 
     public User updateUser(User user) {
+        findUserById(user.getId());
         if (validateDate(user)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
@@ -89,7 +90,7 @@ public class UserService {
     }
 
     private boolean validateDate(User user) {
-        return user.getLogin().contains(" ") || !user.getEmail().contains("@");
+        return user.getLogin().contains(" ") || !user.getEmail().contains("@") || user.getId()<0;
     }
 
 }

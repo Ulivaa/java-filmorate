@@ -37,6 +37,9 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
+        findFilmById(film.getId());
+
+        //выбрасывать разные ошибки прям в валидации
         if (film.getId() == 0 || validateDate(film)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
@@ -94,7 +97,7 @@ public class FilmService {
 
     private boolean validateDate(Film film) {
         return (film.getDescription() != null && film.getDescription().length() > 200)
-                || film.getDuration() < 0 || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28));
+                || film.getDuration() < 0 || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)) || film.getId()<0;
     }
 
     public Film findFilmById(Integer id) {
