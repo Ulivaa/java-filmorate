@@ -1,50 +1,64 @@
 package ru.yandex.practicum.javafilmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.dto.FilmDto;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.service.FilmService;
 
-
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
 public class FilmController {
-    private Map<Integer, Film> films = new HashMap<>();
+    private FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @PostMapping("/films")
-    public void addFilm(@RequestBody FilmDto filmDto) {
-        Film film = filmDto.mapToFilm(filmDto);
-        if (validateDate(film)) {
-            log.error("Неверный формат данных");
-            throw new RuntimeException();
-        }
-        films.put(film.getId(), film);
-        log.info("Добавлен объект {}", film.getName());
+    public Film addFilm(@RequestBody FilmDto filmDto) {
+        return filmService.addFilm(filmDto);
     }
 
     @PutMapping("/films")
-    public void updateFilm(@RequestBody Film film) {
-        if (film.getId() == 0 || validateDate(film)) {
-            log.error("Неверный формат данных");
-            throw new RuntimeException();
-        }
-        films.put(film.getId(), film);
-        log.info("Обновлен объект {}", film.getName());
+    public Film updateFilm(@RequestBody Film film) {
+        return filmService.updateFilm(film);
     }
 
     @GetMapping("/films")
     public Collection<Film> returnAllFilms() {
-        return films.values();
+        return filmService.returnAllFilms();
     }
 
-    private boolean validateDate(Film film) {
-        return (film.getDescription() != null && film.getDescription().length() > 200)
-                || film.getDuration().isNegative() || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28));
+    @GetMapping("/films/{id}")
+    public Film returnFilmById(@PathVariable Integer id) {
+        return filmService.findFilmById(id);
     }
 
+    @PutMapping("/films/{id}/like/{userId}")
+    public void addUserLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.addUserLike(id, userId);
+    }
+
+    @DeleteMapping("/films/{id}/like/{userId}")
+    public void deleteUserLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.deleteUserLike(id, userId);
+    }
+
+    @GetMapping("/films/popular")
+    public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
+        return filmService.firstFilmsWithCountLike(count);
+    }
 }
+
+// example
+// {
+//  "name": "4",
+//  "description": "adipisicing",
+//  "releaseDate": "1967-03-25",
+//  "duration": 100
+//}
