@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -21,8 +22,9 @@ public class Film {
     private String description;
     private LocalDate releaseDate;
     private Short duration;
-
-    private HashSet<User> usersLike = new HashSet<>();
+    private Collection<User> usersLike = new HashSet<>();
+    private MPA mpa;
+    private Collection<String> genre = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -30,14 +32,6 @@ public class Film {
         if (o == null || getClass() != o.getClass()) return false;
         Film film = (Film) o;
         return id == film.getId();
-    }
-
-    public void setUserLike(User user) {
-        usersLike.add(user);
-    }
-
-    public void removeUserLike(User user) {
-        usersLike.remove(user);
     }
 
     @Override

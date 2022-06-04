@@ -2,32 +2,33 @@ package ru.yandex.practicum.javafilmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.javafilmorate.dto.UserDto;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.javafilmorate.storage.UserStorage;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 @Service
 @Slf4j
 public class UserService {
     private UserStorage userStorage;
+    private FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage) {
         this.userStorage = userStorage;
+        this.friendshipStorage = friendshipStorage;
     }
 
-    public User addUser(UserDto userDto) {
-        User user = userDto.mapToUser(userDto);
-        if (validateDate(user)) {
-
+    public User addUser(User user) {
+        if (validateDate(user) || userStorage.findUserByEmail(user.getEmail()).isPresent()) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
+
         userStorage.save(user);
         log.info("Добавлен объект {}", user.getLogin());
         return findUserById(user.getId());
@@ -39,7 +40,7 @@ public class UserService {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
-        userStorage.save(user);
+        userStorage.update(user);
         log.info("Обновлен объект {}", user.getLogin());
         return findUserById(user.getId());
 
@@ -50,47 +51,31 @@ public class UserService {
     }
 
     public void addUserFriend(Integer id, Integer friendId) {
-        User user = findUserById(id);
-        User userFriend = findUserById(friendId);
-        user.setUserFriend(userFriend);
-        userFriend.setUserFriend(user);
+        if (findUserById(id) != null && findUserById(friendId) != null) {
+            friendshipStorage.save(id, friendId);
+        }
     }
 
     public void removeUserFriend(Integer id, Integer friendId) {
-        User user = findUserById(id);
-        User userFriend = findUserById(friendId);
-        user.removeUserFriend(userFriend);
-        userFriend.removeUserFriend(user);
+        if (findUserById(id) != null && findUserById(friendId) != null) {
+            friendshipStorage.delete(id, friendId);
+        }
     }
 
     public Collection<User> getUserFriends(Integer id) {
-        return findUserById(id).getUserFriends();
+        return friendshipStorage.getFriends(id);
     }
 
     public Collection<User> getCommonUserFriends(Integer id, Integer otherId) {
-        User user = findUserById(id);
-        User otherUser = findUserById(otherId);
-        HashSet<User> commonFriends = new HashSet<>();
-        for (User u : user.getUserFriends()) {
-            for (User u2 : otherUser.getUserFriends()) {
-                if (u.equals(u2)) {
-                    commonFriends.add(u);
-                }
-            }
-        }
-        return commonFriends;
+        return friendshipStorage.getCommonFriends(id, otherId);
     }
 
     public User findUserById(Integer id) {
-        return userStorage.returnAllUsers()
-                .stream()
-                .filter(f -> f.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
+        return userStorage.findUserById(id).orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
     }
 
     private boolean validateDate(User user) {
-        return user.getLogin().contains(" ") || !user.getEmail().contains("@") || user.getId()<0;
+        return user.getLogin().contains(" ") || !user.getEmail().contains("@") || user.getId() < 0;
     }
 
 }
