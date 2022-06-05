@@ -6,6 +6,9 @@ import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 
 @Component
 public class LikeDbStorage implements LikeStorage {
+    private final String saveLike = "insert into likes(film_id, user_id) values (?, ?)";
+    private final String deleteLike = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
+
     private final JdbcTemplate jdbcTemplate;
 
     public LikeDbStorage(JdbcTemplate jdbcTemplate) {
@@ -14,15 +17,14 @@ public class LikeDbStorage implements LikeStorage {
 
     @Override
     public void save(int film_id, int user_id) {
-        String sqlQuery = "insert into likes(film_id, user_id) values (?, ?)";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(saveLike,
                 film_id,
                 user_id);
     }
+
     @Override
     public void delete(int film_id, int user_id) {
-        String sqlQuery = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(deleteLike,
                 film_id,
                 user_id);
     }

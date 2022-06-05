@@ -10,3 +10,6 @@ public class JavaFilmorateApplication {
         SpringApplication.run(JavaFilmorateApplication.class, args);
     }
 }
+
+// Спасибо за ревью:)
+// Чудесного дня!)

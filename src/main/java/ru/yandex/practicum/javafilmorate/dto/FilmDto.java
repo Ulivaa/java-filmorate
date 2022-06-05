@@ -9,6 +9,8 @@ import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.model.MPA;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.HashSet;
 
 @Data
 @RequiredArgsConstructor
@@ -20,6 +22,7 @@ public class FilmDto {
     private LocalDate releaseDate;
     private Short duration;
     private MPA mpa;
+    private Collection<String> genre = new HashSet<>();
 
     public Film mapToFilm(FilmDto filmDto) {
 
@@ -43,6 +46,7 @@ public class FilmDto {
         film.setDescription(filmDto.getDescription());
         film.setDuration(filmDto.getDuration());
         film.setMpa(filmDto.getMpa());
+        film.setGenre(filmDto.getGenre());
         film.setId(++id);
         return film;
     }

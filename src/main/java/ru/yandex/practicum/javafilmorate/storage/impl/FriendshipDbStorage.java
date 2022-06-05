@@ -12,6 +12,16 @@ import java.util.stream.Collectors;
 @Component
 @Repository
 public class FriendshipDbStorage implements FriendshipStorage {
+    private final String isConfirmedQuery = "Select * from Friendships where user_id = ? AND friend_id = ?";
+    private final String saveFriendshipUserQuery = "insert into Friendships (user_id, friend_id, is_confirmed) values (?, ?, ?)";
+    private final String updateConfirmFriendQuery = "update Friendships set is_confirmed = ? where user_id = ? and friend_id = ?";
+    private final String hasFriendshipQuery = "Select * from Friendships where user_id = ? AND friend_id = ?";
+    private final String hasConfirmFriendshipQuery = "Select * from Friendships where user_id = ? AND friend_id = ?";
+    private final String deleteConfirmForFriend = "update Friendships set is_confirmed = ? where user_id = ? and friend_id = ?";
+    private final String deleteFriendship = "DELETE FROM Friendships where user_id = ? AND friend_id = ?";
+    private final String getUserFriendsQuery = "Select * from Users u join Friendships f on u.user_id = f.friend_id where f.user_id = ? ";
+
+
     private final JdbcTemplate jdbcTemplate;
 
 
@@ -22,24 +32,20 @@ public class FriendshipDbStorage implements FriendshipStorage {
     @Override
     public void save(int user_id, int friend_id) {
         /*Проверка на существование запроса на дружбу*/
-        String sql_isConfirm = "Select * from Friendships where user_id = ? AND friend_id = ?";
-        if (jdbcTemplate.queryForRowSet(sql_isConfirm, friend_id, user_id)
+        if (jdbcTemplate.queryForRowSet(isConfirmedQuery, friend_id, user_id)
                 .next()) {
             /* Добавление подтвержденной дружбы у обоих */
-            String sqlQuery_user = "insert into Friendships (user_id, friend_id, is_confirmed) values (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery_user,
+            jdbcTemplate.update(saveFriendshipUserQuery,
                     user_id,
                     friend_id,
                     true);
-            String sqlQuery_friend = "update Friendships set is_confirmed = ? where user_id = ? and friend_id = ?";
-            jdbcTemplate.update(sqlQuery_friend,
+            jdbcTemplate.update(updateConfirmFriendQuery,
                     true,
                     friend_id,
                     user_id);
         } else {
             /*Добавление запроса на дружбу*/
-            String sqlQuery = "insert into Friendships (user_id, friend_id, is_confirmed) values (?, ?, ?)";
-            jdbcTemplate.update(sqlQuery,
+            jdbcTemplate.update(saveFriendshipUserQuery,
                     user_id,
                     friend_id,
                     false);
@@ -50,23 +56,19 @@ public class FriendshipDbStorage implements FriendshipStorage {
     @Override
     public void delete(int user_id, int friend_id) {
         /* Проверка на существование дружбы*/
-        String sql_isFriendship = "Select * from Friendships where user_id = ? AND friend_id = ?";
-        if (jdbcTemplate.queryForRowSet(sql_isFriendship, user_id, friend_id)
+        if (jdbcTemplate.queryForRowSet(hasFriendshipQuery, user_id, friend_id)
                 .next()) {
             /* Проверка на сущестование подтверждения */
-            String sql_isConfirm = "Select * from Friendships where user_id = ? AND friend_id = ?";
-            if (jdbcTemplate.queryForRowSet(sql_isConfirm, friend_id, user_id)
+            if (jdbcTemplate.queryForRowSet(hasConfirmFriendshipQuery, friend_id, user_id)
                     .next()) {
                 /* Удаление подтверждения дружбы у бывшего друга */
-                String sqlQuery_friend = "update Friendships set is_confirmed = ? where user_id = ? and friend_id = ?";
-                jdbcTemplate.update(sqlQuery_friend,
+                jdbcTemplate.update(deleteConfirmForFriend,
                         false,
                         friend_id,
                         user_id);
             }
             /* Удаление дружбы */
-            String sqlQuery_user = "DELETE FROM Friendships where user_id = ? AND friend_id = ?";
-            jdbcTemplate.update(sqlQuery_user,
+            jdbcTemplate.update(deleteFriendship,
                     user_id,
                     friend_id);
         }
@@ -74,9 +76,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
     @Override
     public Collection<User> getFriends(Integer id) {
-        String sql_friends = "Select * from Users u join Friendships f on u.user_id = f.friend_id where f.user_id = ? ";
-
-        return jdbcTemplate.query(sql_friends, (rs, rowNum) -> UserDbStorage.makeUser(rs, rowNum), id);
+        return jdbcTemplate.query(getUserFriendsQuery, (rs, rowNum) -> UserDbStorage.makeUser(rs, rowNum), id);
     }
 
     @Override

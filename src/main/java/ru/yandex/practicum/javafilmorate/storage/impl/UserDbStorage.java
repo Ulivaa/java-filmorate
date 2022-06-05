@@ -17,6 +17,12 @@ import java.util.Optional;
 @Repository
 public class UserDbStorage implements UserStorage {
 
+    private final String saveUserQuery = "insert into users(login, name, email, birthday) values (?, ?, ?, ?)";
+    private final String updateUserQuery = "update users set login = ?, name = ?, email = ?, birthday = ? where user_id =? ";
+    private final String findUserByIdQuery = "select * from users where user_id = ?";
+    private final String findUserByEmailQuery = "select * from users where email = ?";
+    private final String findUsersLikeQuery = "SELECT * from users u JOIN likes l on u.user_id = l.user_id WHERE film_id = ?";
+
     JdbcTemplate jdbcTemplate;
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -25,8 +31,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void save(User user) {
-        String sqlQuery = "insert into users(login, name, email, birthday) values (?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(saveUserQuery,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
@@ -35,8 +40,7 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void update(User user) {
-        String sqlQuery = "update users set login = ?, name = ?, email = ?, birthday = ? where user_id =? ";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(updateUserQuery,
                 user.getLogin(),
                 user.getName(),
                 user.getEmail(),
@@ -46,17 +50,15 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> findUserById(int id) {
-        String sql = "select * from users where user_id = ?";
         return jdbcTemplate.query(
-                sql, (rs, rowNum) -> makeUser(rs, rowNum), id
+                findUserByIdQuery, (rs, rowNum) -> makeUser(rs, rowNum), id
         ).stream().findAny();
     }
 
     @Override
     public Optional<User> findUserByEmail(String email) {
-        String sql = "select * from users where email = ?";
         return jdbcTemplate.query(
-                sql, (rs, rowNum) -> makeUser(rs, rowNum), email
+                findUserByEmailQuery, (rs, rowNum) -> makeUser(rs, rowNum), email
         ).stream().findAny();
     }
 
@@ -66,9 +68,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     public Collection<User> findUsersLikeToFilm(Integer film_id) {
-        String sql = "SELECT * from users u JOIN likes l on u.user_id = l.user_id WHERE film_id = ?";
-
-        return jdbcTemplate.query(sql, (rs, rowNum) -> makeUser(rs, rowNum), film_id);
+        return jdbcTemplate.query(findUsersLikeQuery, (rs, rowNum) -> makeUser(rs, rowNum), film_id);
 
     }
 

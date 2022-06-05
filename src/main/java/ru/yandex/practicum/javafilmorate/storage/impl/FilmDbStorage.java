@@ -18,6 +18,16 @@ import java.util.Collection;
 @Primary
 public class FilmDbStorage implements FilmStorage {
 
+    private final String saveQuery = "insert into films(name, description, release_date, duration, mpa) values (?, ?, ?, ?, ?)";
+    private final String updateQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";
+    private final String findByIdQuery = "select * from films where film_id = ?";
+    private final String getGenreQuery = "SELECT g.name from genres g JOIN films_genre f on g.genre_id = f.genre_id WHERE film_id = ?";
+    private final String getPopularQuery = "SELECT f.film_id, f.name, f.description, f.release_date,f.duration, f.mpa\n" +
+            "FROM films AS f LEFT JOIN likes AS l on f.film_id = l.film_id\n" +
+            "GROUP BY f.film_id\n" +
+            "ORDER BY COUNT(DISTINCT l.user_id) DESC LIMIT ?";
+
+
     private final JdbcTemplate jdbcTemplate;
     private final UserDbStorage userDbStorage;
 
@@ -28,8 +38,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void save(Film film) {
-        String sqlQuery = "insert into films(name, description, release_date, duration, mpa) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(saveQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
@@ -38,8 +47,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void update(Film film) {
-        String sqlQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(updateQuery,
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
@@ -54,7 +62,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Film findFilmById(int film_id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from films where film_id = ?", film_id);
+        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(findByIdQuery, film_id);
 
         if (filmRows.next()) {
 
@@ -73,8 +81,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Collection<String> getGenres(int film_id) {
-        String sql = "SELECT g.name from genres g JOIN films_genre f on g.genre_id = f.genre_id WHERE film_id = ?";
-        return jdbcTemplate.query(sql,
+        return jdbcTemplate.query(getGenreQuery,
                 (rs, rowNum) -> rs.getString("name"),
                 film_id);
     }
@@ -94,11 +101,6 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public Collection<Film> getPopular(int limit) {
-        String sql =
-                "SELECT f.film_id, f.name, f.description, f.release_date,f.duration, f.mpa\n" +
-                        "FROM films AS f LEFT JOIN likes AS l on f.film_id = l.film_id\n" +
-                        "GROUP BY f.film_id\n" +
-                        "ORDER BY COUNT(DISTINCT l.user_id) DESC LIMIT ?";
-        return jdbcTemplate.query(sql, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
+        return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
     }
 }
