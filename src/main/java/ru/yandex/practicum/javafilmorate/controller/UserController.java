@@ -24,12 +24,13 @@ public class UserController {
 
     @PostMapping("/users")
     public User addUser(@RequestBody UserDto userDto) {
-        return userService.addUser(userDto);
+        User user = userDto.mapToUser(userDto);
+        return userService.addUser(user);
     }
 
     @PutMapping("/users")
     public User updateUser(@RequestBody User user) {
-       return userService.updateUser(user);
+        return userService.updateUser(user);
     }
 
     @GetMapping("/users")

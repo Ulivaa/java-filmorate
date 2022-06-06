@@ -21,7 +21,8 @@ public class FilmController {
 
     @PostMapping("/films")
     public Film addFilm(@RequestBody FilmDto filmDto) {
-        return filmService.addFilm(filmDto);
+        Film film = filmDto.mapToFilm(filmDto);
+        return filmService.addFilm(film);
     }
 
     @PutMapping("/films")

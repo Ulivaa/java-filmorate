@@ -33,7 +33,7 @@ public class UserDto {
         } else {
             user.setBirthday(userDto.getBirthday());
         }
-        if (user.getLogin().contains(" ") || !user.getEmail().contains("@")){
+        if (user.getLogin().contains(" ") || !user.getEmail().contains("@")) {
             log.error("Неверный формат данных");
             throw new IncorrectParameterException("email");
         }
