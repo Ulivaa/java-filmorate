@@ -34,9 +34,9 @@ public class FilmService {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
-        filmStorage.save(film);
+        int id = filmStorage.save(film);
         log.info("Добавлен объект {}", film.getName());
-        return findFilmById(film.getId());
+        return findFilmById(id);
     }
 
     public Film updateFilm(Film film) {
@@ -98,11 +98,6 @@ public class FilmService {
     }
 
     public Film findFilmById(int id) {
-        Film film = readFilmStorage.findFilmById(id);
-        if (film != null) {
-            return film;
-        } else {
-            throw new FilmNotFoundException(String.format("Фильм № %d не найден", id));
-        }
+        return readFilmStorage.findFilmById(id).orElseThrow(() -> new FilmNotFoundException(String.format("Фильм № %d не найден", id)));
     }
 }

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
@@ -14,8 +13,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
-@Component("UserDbStorage")
-@Repository
+@Repository("UserDbStorage")
 public class UserDbStorage implements UserStorage, ReadUserStorage {
 
     private final String saveUserQuery = "insert into users(login, name, email, birthday) values (?, ?, ?, ?)";

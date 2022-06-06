@@ -7,9 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 
 @Data
 @AllArgsConstructor
@@ -24,7 +22,7 @@ public class Film {
     private Short duration;
     private Collection<User> usersLike = new HashSet<>();
     private MPA mpa;
-    private Collection<String> genre = new HashSet<>();
+    private Collection<String> genre = new HashSet<>(); // в таблице сразу жанры
 
     @Override
     public boolean equals(Object o) {
@@ -37,5 +35,15 @@ public class Film {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("name", name);
+        values.put("description", description);
+        values.put("release_date", releaseDate);
+        values.put("duration", duration);
+        values.put("mpa", mpa.toString());
+        return values;
     }
 }
