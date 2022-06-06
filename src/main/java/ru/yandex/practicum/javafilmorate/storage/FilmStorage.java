@@ -9,10 +9,6 @@ public interface FilmStorage {
 
     Collection<Film> returnAllFilms();
 
-    Film findFilmById(int id);
-
     void update(Film film);
-
-    Collection<Film> getPopular(int limit);
 
 }

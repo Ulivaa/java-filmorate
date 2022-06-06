@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface UserStorage {
     void save(User user);
 
-    Optional<User> findUserById(int id);
-
-    Optional<User> findUserByEmail(String email);
+//    Optional<User> findUserById(int id);
+//
+//    Optional<User> findUserByEmail(String email);
 
     void update(User user);
 

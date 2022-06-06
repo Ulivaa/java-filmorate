@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
+import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
 import ru.yandex.practicum.javafilmorate.storage.UserStorage;
 
 import java.util.Collection;
@@ -15,16 +16,18 @@ import java.util.Collection;
 @Slf4j
 public class UserService {
     private UserStorage userStorage;
+    private ReadUserStorage readUserStorage;
     private FriendshipStorage friendshipStorage;
 
     @Autowired
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage, ReadUserStorage readUserStorage) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
+        this.readUserStorage = readUserStorage;
     }
 
     public User addUser(User user) {
-        if (validateDate(user) || userStorage.findUserByEmail(user.getEmail()).isPresent()) {
+        if (validateDate(user) || readUserStorage.findUserByEmail(user.getEmail()).isPresent()) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -71,7 +74,7 @@ public class UserService {
     }
 
     public User findUserById(Integer id) {
-        return userStorage.findUserById(id).orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
+        return readUserStorage.findUserById(id).orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
     }
 
     private boolean validateDate(User user) {
