@@ -8,7 +8,7 @@ import java.util.Optional;
 @Repository
 public interface ReadUserStorage {
 
-     Optional<User> findUserById(int id);
+    Optional<User> findUserById(int id);
 
-     Optional<User> findUserByEmail(String email);
+    Optional<User> findUserByEmail(String email);
 }

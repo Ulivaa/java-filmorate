@@ -87,7 +87,7 @@ class FilmoRateApplicationTests {
     @Test
     public void testFindFilmById() {
 
-        Optional<Film> filmOptional = Optional.ofNullable(filmDbStorage.findFilmById(1));
+        Optional<Film> filmOptional = filmDbStorage.findFilmById(1);
 
         assertThat(filmOptional)
                 .isPresent()
@@ -99,7 +99,7 @@ class FilmoRateApplicationTests {
     @Test
     public void testFilmUpdate() {
         filmDbStorage.update(new Film(1, "updateFilm", "updateDescr", LocalDate.of(1995, 04, 24), (short) 120, null, MPA.PG, null));
-        Optional<Film> filmOptional = Optional.ofNullable(filmDbStorage.findFilmById(1));
+        Optional<Film> filmOptional = filmDbStorage.findFilmById(1);
         assertThat(filmOptional)
                 .isPresent()
                 .hasValueSatisfying(film ->
@@ -121,7 +121,7 @@ class FilmoRateApplicationTests {
     public void testSaveFilm() {
 
         filmDbStorage.save(new Film(2, "film2", "descr2", LocalDate.of(2000, 04, 24), (short) 60, null, MPA.PG, null));
-        Optional<Film> filmOptional = Optional.ofNullable(filmDbStorage.findFilmById(2));
+        Optional<Film> filmOptional = filmDbStorage.findFilmById(2);
 
 
         assertThat(filmOptional)

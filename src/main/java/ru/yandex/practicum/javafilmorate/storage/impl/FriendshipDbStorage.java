@@ -1,7 +1,6 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
@@ -9,7 +8,6 @@ import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@Component
 @Repository
 public class FriendshipDbStorage implements FriendshipStorage {
     private final String isConfirmedQuery = "Select * from Friendships where user_id = ? AND friend_id = ?";

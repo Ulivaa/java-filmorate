@@ -16,7 +16,7 @@ import java.util.HashSet;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class FilmDto {
-    private static int id = 0;
+//    private static int id = 0;
     private @NonNull String name;
     private String description;
     private LocalDate releaseDate;
@@ -47,7 +47,7 @@ public class FilmDto {
         film.setDuration(filmDto.getDuration());
         film.setMpa(filmDto.getMpa());
         film.setGenre(filmDto.getGenre());
-        film.setId(++id);
+//        film.setId(++id);
         return film;
     }
 }

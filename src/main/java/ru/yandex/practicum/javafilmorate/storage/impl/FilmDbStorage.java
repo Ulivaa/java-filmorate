@@ -2,8 +2,7 @@ package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.model.MPA;
@@ -13,9 +12,9 @@ import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Optional;
 
-@Component("FilmDbStorage")
-@Repository
+@Repository("FilmDbStorage")
 @Primary
 public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
@@ -38,13 +37,25 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
     }
 
     @Override
-    public void save(Film film) {
-        jdbcTemplate.update(saveQuery,
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration()
-                , film.getMpa().toString());
+    public int save(Film film) {
+        // старый функционал без возврата id
+//        jdbcTemplate.update(saveQuery,
+//                film.getName(),
+//                film.getDescription(),
+//                film.getReleaseDate(),
+//                film.getDuration()
+//                , film.getMpa().toString());
+
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("films")
+                .usingGeneratedKeyColumns("film_id");
+
+        int film_id = (int)simpleJdbcInsert.executeAndReturnKey(film.toMap()).longValue();
+        //реализовать жанры уже из существующих
+//        if (!film.getGenre().isEmpty()){
+//            saveGenre();
+//        }
+        return film_id;
     }
 
     public void update(Film film) {
@@ -62,23 +73,10 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         return jdbcTemplate.query("SELECT * from films", (rs, rowNum) -> makeFilm(rs, rowNum));
     }
 
-    public Film findFilmById(int film_id) {
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(findByIdQuery, film_id);
-
-        if (filmRows.next()) {
-
-            Film film = new Film(
-                    filmRows.getInt("film_id"),
-                    filmRows.getString("name"),
-                    filmRows.getString("description"),
-                    filmRows.getDate("release_date").toLocalDate(),
-                    filmRows.getShort("duration"),
-                    userDbStorage.findUsersLikeToFilm(film_id),
-                    MPA.valueOf(filmRows.getString("mpa")),
-                    getGenres(film_id));
-            return film;
-        }
-        return null;
+    public Optional<Film> findFilmById(int film_id) {
+        return jdbcTemplate.query(
+                findByIdQuery, (rs, rowNum) -> makeFilm(rs, rowNum), film_id
+        ).stream().findAny();
     }
 
     private Collection<String> getGenres(int film_id) {
@@ -87,6 +85,9 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
                 film_id);
     }
 
+   private void saveGenre(int film_id, Collection<String> genres){
+
+    }
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
         Integer film_id = rs.getInt("film_id");

@@ -1,10 +1,10 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 
-@Component
+@Repository
 public class LikeDbStorage implements LikeStorage {
     private final String saveLike = "insert into likes(film_id, user_id) values (?, ?)";
     private final String deleteLike = "DELETE FROM likes WHERE film_id = ? AND user_id = ?";
