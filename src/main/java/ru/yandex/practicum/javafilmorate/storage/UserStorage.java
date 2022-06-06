@@ -5,7 +5,7 @@ import ru.yandex.practicum.javafilmorate.model.User;
 import java.util.Collection;
 
 public interface UserStorage {
-    void save(User user);
+    int save(User user);
 
     void update(User user);
 

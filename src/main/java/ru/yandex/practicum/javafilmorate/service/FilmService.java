@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
@@ -30,7 +31,7 @@ public class FilmService {
     }
 
     public Film addFilm(Film film) {
-        if (validateDate(film)) {
+        if (!isValidateDate(film)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -41,7 +42,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         Film filmUpdate = findFilmById(film.getId());
-        if (film.getId() == 0 || validateDate(film)) {
+        if (film.getId() == 0 || !isValidateDate(film)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -92,9 +93,23 @@ public class FilmService {
         return readFilmStorage.getPopular(count);
     }
 
-    private boolean validateDate(Film film) {
-        return (film.getDescription() != null && film.getDescription().length() > 200)
-                || film.getDuration() < 0 || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28)) || film.getId() < 0;
+    private boolean isValidateDate(Film film) {
+        if (film.getName().isBlank()) {
+            throw new IncorrectParameterException("name");
+        }
+        if (film.getDescription().isBlank() || film.getDescription().length() > 200) {
+            throw new IncorrectParameterException("description");
+        }
+        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            throw new IncorrectParameterException("ReleaseDate");
+        }
+        if (film.getDuration() < 0) {
+            throw new IncorrectParameterException("Duration");
+        }
+        if (film.getMpa() == null) {
+            throw new IncorrectParameterException("MPA");
+        }
+        return true;
     }
 
     public Film findFilmById(int id) {
