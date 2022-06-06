@@ -1,10 +1,11 @@
 package ru.yandex.practicum.javafilmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Setter
@@ -32,6 +33,15 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(email);
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("login", login);
+        values.put("email", email);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
     }
 }
 

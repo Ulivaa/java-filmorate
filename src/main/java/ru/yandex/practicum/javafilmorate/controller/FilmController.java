@@ -3,7 +3,6 @@ package ru.yandex.practicum.javafilmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.javafilmorate.dto.FilmDto;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.service.FilmService;
 
@@ -20,8 +19,7 @@ public class FilmController {
     }
 
     @PostMapping("/films")
-    public Film addFilm(@RequestBody FilmDto filmDto) {
-        Film film = filmDto.mapToFilm(filmDto);
+    public Film addFilm(@RequestBody Film film) {
         return filmService.addFilm(film);
     }
 

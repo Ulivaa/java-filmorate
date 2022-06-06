@@ -4,12 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
 import ru.yandex.practicum.javafilmorate.storage.UserStorage;
 
+import java.time.LocalDate;
 import java.util.Collection;
 
 @Service
@@ -27,19 +29,20 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        if (validateDate(user) || readUserStorage.findUserByEmail(user.getEmail()).isPresent()) {
+        // проверка валидации и уже существующего пользователя с таким логином
+        if (!validateDate(user) || readUserStorage.findUserByEmail(user.getEmail()).isPresent()) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
 
-        userStorage.save(user);
+        int id = userStorage.save(user);
         log.info("Добавлен объект {}", user.getLogin());
-        return findUserById(user.getId());
+        return findUserById(id);
     }
 
     public User updateUser(User user) {
         findUserById(user.getId());
-        if (validateDate(user)) {
+        if (!validateDate(user)) {
             log.error("Неверный формат данных");
             throw new RuntimeException();
         }
@@ -78,7 +81,22 @@ public class UserService {
     }
 
     private boolean validateDate(User user) {
-        return user.getLogin().contains(" ") || !user.getEmail().contains("@") || user.getId() < 0;
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        if (user.getBirthday().isAfter(LocalDate.now())) {
+            log.error("Неверный формат данных");
+            throw new IncorrectParameterException("birthday");
+        }
+        if (user.getLogin().contains(" ")) {
+            log.error("Неверный формат данных");
+            throw new IncorrectParameterException("login");
+        }
+        if (!user.getEmail().contains("@")) {
+            log.error("Неверный формат данных");
+            throw new IncorrectParameterException("email");
+        }
+        return true;
     }
 
 }

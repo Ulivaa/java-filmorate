@@ -3,7 +3,6 @@ package ru.yandex.practicum.javafilmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.javafilmorate.dto.UserDto;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.service.UserService;
 
@@ -23,8 +22,7 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public User addUser(@RequestBody UserDto userDto) {
-        User user = userDto.mapToUser(userDto);
+    public User addUser(@RequestBody User user) {
         return userService.addUser(user);
     }
 

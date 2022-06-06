@@ -22,7 +22,7 @@ public class Film {
     private Short duration;
     private Collection<User> usersLike = new HashSet<>();
     private MPA mpa;
-    private Collection<String> genre = new HashSet<>(); // в таблице сразу жанры
+    private Collection<Integer> genre = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

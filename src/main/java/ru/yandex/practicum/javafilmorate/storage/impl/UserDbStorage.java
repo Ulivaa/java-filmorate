@@ -1,6 +1,7 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
@@ -29,12 +30,11 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
     }
 
     @Override
-    public void save(User user) {
-        jdbcTemplate.update(saveUserQuery,
-                user.getLogin(),
-                user.getName(),
-                user.getEmail(),
-                Date.valueOf(user.getBirthday()));
+    public int save(User user) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("users")
+                .usingGeneratedKeyColumns("user_id");
+        return simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
     }
 
     @Override
