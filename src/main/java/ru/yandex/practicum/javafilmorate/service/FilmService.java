@@ -8,6 +8,7 @@ import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
+import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -16,14 +17,16 @@ import java.util.Collection;
 @Service
 public class FilmService {
     private FilmStorage filmStorage;
+    private ReadFilmStorage readFilmStorage;
     private UserService userService;
     private LikeStorage likeStorage;
 
     @Autowired
-    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage, UserService userService, LikeStorage likeStorage) {
+    public FilmService(@Qualifier("FilmDbStorage") FilmStorage filmStorage, UserService userService, LikeStorage likeStorage, ReadFilmStorage readFilmStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likeStorage = likeStorage;
+        this.readFilmStorage = readFilmStorage;
     }
 
     public Film addFilm(Film film) {
@@ -86,7 +89,7 @@ public class FilmService {
     }
 
     public Collection<Film> firstFilmsWithCountLike(Integer count) {
-        return filmStorage.getPopular(count);
+        return readFilmStorage.getPopular(count);
     }
 
     private boolean validateDate(Film film) {
@@ -95,7 +98,7 @@ public class FilmService {
     }
 
     public Film findFilmById(int id) {
-        Film film = filmStorage.findFilmById(id);
+        Film film = readFilmStorage.findFilmById(id);
         if (film != null) {
             return film;
         } else {

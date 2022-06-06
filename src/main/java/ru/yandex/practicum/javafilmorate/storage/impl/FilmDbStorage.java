@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.model.MPA;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
+import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,7 +17,7 @@ import java.util.Collection;
 @Component("FilmDbStorage")
 @Repository
 @Primary
-public class FilmDbStorage implements FilmStorage {
+public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     private final String saveQuery = "insert into films(name, description, release_date, duration, mpa) values (?, ?, ?, ?, ?)";
     private final String updateQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";

@@ -24,18 +24,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.values();
     }
 
-    @Override
-    public Film findFilmById(int id) {
-        return null;
-    }
 
     @Override
     public void update(Film film) {
         films.put(film.getId(), film);
     }
 
-    @Override
-    public Collection<Film> getPopular(int limit) {
-        return null;
-    }
+
 }

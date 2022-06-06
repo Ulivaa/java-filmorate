@@ -19,16 +19,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> findUserById(int id) {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<User> findUserByEmail(String email) {
-        return Optional.empty();
-    }
-
-    @Override
     public void update(User user) {
 
     }

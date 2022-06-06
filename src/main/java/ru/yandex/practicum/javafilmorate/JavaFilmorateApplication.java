@@ -11,5 +11,3 @@ public class JavaFilmorateApplication {
     }
 }
 
-// Спасибо за ревью:)
-// Чудесного дня!)
