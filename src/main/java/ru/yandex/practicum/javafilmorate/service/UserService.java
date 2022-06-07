@@ -40,6 +40,13 @@ public class UserService {
         return findUserById(id);
     }
 
+    public void deleteUser(Integer user_id) {
+        if (findUserById(user_id) != null) {
+            userStorage.delete(user_id);
+        }
+    }
+
+
     public User updateUser(User user) {
         findUserById(user.getId());
         if (!validateDate(user)) {

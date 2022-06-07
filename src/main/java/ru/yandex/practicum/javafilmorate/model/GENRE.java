@@ -4,52 +4,53 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
-public enum MPA {
-    G(1, "G"),
-    PG(2, "PG"),
-    PG_13(3, "PG-13"),
-    R(4, "R"),
-    NC_17(5, "NC-17");
+public enum GENRE {
+    COMEDY(1, "Комедия"),
+    DRAMA(2, "Драма"),
+    CARTOON(3, "Мультфильм"),
+    ACTION(4, "Боевик"),
+    MELODRAMA(5, "Мелодрама"),
+    DOCUMENTARY(6, "Документальный");
 
     private int id;
-    private String name;
+    private String genre;
 
-     MPA(int id, String name) {
+     GENRE(int id, String genre) {
         this.id = id;
-        this.name = name;
+        this.genre = genre;
     }
-
 
     public int getId() {
         return id;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getName() {
+        return genre;
+    }
+
+    public void setName(String genre) {
+        this.genre = genre;
     }
 
     @JsonCreator
-    public static MPA forValues(@JsonProperty("id") int id) {
-        for (MPA obj : MPA.values()) {
+    public static GENRE forValues(@JsonProperty("id") int id) {
+        for (GENRE obj : GENRE.values()) {
             if (
                     Double.compare(obj.id, id) == 0) {
                 return obj;
             }
         }
-
         return null;
     }
-
-
 }
+
+
+
+
+
 
