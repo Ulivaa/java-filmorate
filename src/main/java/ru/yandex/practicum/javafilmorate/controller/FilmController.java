@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.model.SearchType;
 import ru.yandex.practicum.javafilmorate.service.FilmService;
 
 import java.util.Collection;
@@ -51,6 +52,14 @@ public class FilmController {
     @GetMapping("/films/popular")
     public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.firstFilmsWithCountLike(count);
+    }
+
+    @GetMapping("/films/search")
+    public Collection<Film> search(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title") String by
+    ) {
+        return filmService.search(query, by);
     }
 }
 

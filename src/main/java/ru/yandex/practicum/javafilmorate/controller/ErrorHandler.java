@@ -39,6 +39,13 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnsupportedOperationException(final UnsupportedOperationException e) {
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
 
     @ResponseBody
     @ExceptionHandler(HttpMediaTypeNotAcceptableException.class)
@@ -50,7 +57,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                "Произошла непредвиденная ошибка: " + e.getMessage()
         );
     }
 }

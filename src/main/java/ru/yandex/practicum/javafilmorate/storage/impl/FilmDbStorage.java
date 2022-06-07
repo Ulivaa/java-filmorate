@@ -13,6 +13,7 @@ import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Repository("FilmDbStorage")
@@ -28,6 +29,11 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
             "FROM films AS f LEFT JOIN likes AS l on f.film_id = l.film_id\n" +
             "GROUP BY f.film_id\n" +
             "ORDER BY COUNT(DISTINCT l.user_id) DESC LIMIT ?";
+    private final String searchQuery = "select f.*, count(l.film_id) as cnt from films f " +
+            "left join likes l on f.film_id = l.film_id " +
+            "where f.name ilike ? " +
+            "group by f.FILM_ID, f.NAME, f.DESCRIPTION, f.RELEASE_DATE, f.DURATION, f.MPA " +
+            "order by cnt desc";
 
 
     private final JdbcTemplate jdbcTemplate;
@@ -125,5 +131,10 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     public Collection<Film> getPopular(int limit) {
         return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
+    }
+
+    @Override
+    public List<Film> search(String query) {
+        return jdbcTemplate.query(searchQuery, this::makeFilm, "%" + query + "%");
     }
 }

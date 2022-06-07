@@ -1,6 +1,6 @@
 // Старые тесты. Не актуальны. Все кейсы покрывает постман
 
-//package ru.yandex.practicum.javafilmorate.controller;
+package ru.yandex.practicum.javafilmorate.controller;
 //
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@
 //import static org.junit.jupiter.api.Assertions.assertEquals;
 //import static org.junit.jupiter.api.Assertions.assertNotEquals;
 //
-//public class FilmControllerTest {
+public class FilmControllerTest {
 //    private HttpClient client;
 //    private HttpRequest.Builder requestBuilder;
 //    final int PORT = 8080;
@@ -99,4 +99,4 @@
 //                .header("Accept", "text/html").header("Content-Type", "application/json")
 //                .build();
 //    }
-//}
+}

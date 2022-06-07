@@ -59,6 +59,3 @@ CREATE TABLE IF NOT EXISTS Likes
     user_id int REFERENCES Users (user_id),
     primary key (film_id, user_id)
 );
-
-create unique index IF NOT EXISTS Likes_index
-    on Likes (film_id);
