@@ -23,6 +23,11 @@ public class FilmController {
         return filmService.addFilm(film);
     }
 
+    @DeleteMapping("/films/{filmId}")
+    public void deleteFilm(@PathVariable Integer filmId) {
+        filmService.deleteFilm(filmId);
+    }
+
     @PutMapping("/films")
     public Film updateFilm(@RequestBody Film film) {
         return filmService.updateFilm(film);
