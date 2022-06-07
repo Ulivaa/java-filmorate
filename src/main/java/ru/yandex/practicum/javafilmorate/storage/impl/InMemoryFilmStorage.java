@@ -21,6 +21,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public void delete(Integer film_id) {
+
+    }
+
+    @Override
     public Collection<Film> returnAllFilms() {
         return films.values();
     }

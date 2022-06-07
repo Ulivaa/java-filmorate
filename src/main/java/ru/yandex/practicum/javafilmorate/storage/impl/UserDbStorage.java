@@ -18,6 +18,7 @@ import java.util.Optional;
 public class UserDbStorage implements UserStorage, ReadUserStorage {
 
     private final String saveUserQuery = "insert into users(login, name, email, birthday) values (?, ?, ?, ?)";
+    private final String deleteUser = "DELETE FROM users WHERE user_id = ?";
     private final String updateUserQuery = "update users set login = ?, name = ?, email = ?, birthday = ? where user_id =? ";
     private final String findUserByIdQuery = "select * from users where user_id = ?";
     private final String findUserByEmailQuery = "select * from users where email = ?";
@@ -35,6 +36,12 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
                 .withTableName("users")
                 .usingGeneratedKeyColumns("user_id");
         return simpleJdbcInsert.executeAndReturnKey(user.toMap()).intValue();
+    }
+
+    @Override
+    public void delete(Integer user_id) {
+        jdbcTemplate.update(deleteUser,
+                user_id);
     }
 
     @Override

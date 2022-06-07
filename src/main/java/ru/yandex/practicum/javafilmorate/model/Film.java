@@ -1,5 +1,6 @@
 package ru.yandex.practicum.javafilmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NonNull;
@@ -14,15 +15,16 @@ import java.util.*;
 @RequiredArgsConstructor
 public class Film {
     protected static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
     private int id;
     private @NonNull String name;
     private String description;
     private LocalDate releaseDate;
     private Short duration;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private Collection<User> usersLike = new HashSet<>();
     private MPA mpa;
-    private Collection<Integer> genre = new HashSet<>();
+    //    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private Collection<GENRE> genres;
 
     @Override
     public boolean equals(Object o) {

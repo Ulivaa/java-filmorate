@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.model.GENRE;
 import ru.yandex.practicum.javafilmorate.model.MPA;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
@@ -20,9 +21,11 @@ import java.util.Optional;
 public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     private final String saveFilmQuery = "insert into films(name, description, release_date, duration, mpa) values (?, ?, ?, ?, ?)";
+    private final String deleteFilm = "DELETE FROM films WHERE film_id = ?";
+    private final String deleteFilmGenres = "DELETE FROM films_genre WHERE film_id = ?";
     private final String updateQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";
     private final String findByIdQuery = "select * from films where film_id = ?";
-    private final String getGenreQuery = "SELECT g.genre_id from genres g JOIN films_genre f on g.genre_id = f.genre_id WHERE film_id = ?";
+    private final String getGenreQuery = "SELECT g.name from genres g JOIN films_genre f on g.genre_id = f.genre_id WHERE film_id = ?";
     private final String saveGenreQuery = "insert into films_genre(film_id, genre_id) values(?, ?)";
     private final String getPopularQuery = "SELECT f.film_id, f.name, f.description, f.release_date,f.duration, f.mpa\n" +
             "FROM films AS f LEFT JOIN likes AS l on f.film_id = l.film_id\n" +
@@ -44,10 +47,16 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
         int film_id = simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue();
-        if (film.getGenre() != null) {
-            saveGenre(film_id, film.getGenre());
+        if (film.getGenres() != null) {
+            saveGenre(film_id, film.getGenres());
         }
         return film_id;
+    }
+
+    @Override
+    public void delete(Integer film_id) {
+        jdbcTemplate.update(deleteFilm,
+                film_id);
     }
 
     public void update(Film film) {
@@ -58,8 +67,13 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
                 film.getDuration(),
                 film.getMpa().toString(),
                 film.getId());
-        if (film.getGenre() != null) {
-            saveGenre(film.getId(), film.getGenre());
+        if (film.getGenres() != null) {
+            if (!film.getGenres().isEmpty()) {
+                deleteGenre(film.getId());
+                saveGenre(film.getId(), film.getGenres());
+            } else {
+                deleteGenre(film.getId());
+            }
         }
     }
 
@@ -74,9 +88,39 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         ).stream().findAny();
     }
 
-    private Collection<Integer> getGenres(int film_id) {
-        return jdbcTemplate.query(getGenreQuery,
-                (rs, rowNum) -> rs.getInt("genre_id"),
+
+    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+        Integer film_id = rs.getInt("film_id");
+
+        return new Film(rs.getInt("film_id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getShort("duration"),
+                userDbStorage.findUsersLikeToFilm(film_id),
+                MPA.valueOf(rs.getString("mpa")),
+                getGenres(film_id)
+//                new HashSet<GENRE>()
+        );
+    }
+
+    public Collection<Film> getPopular(int limit) {
+        return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
+    }
+
+    private Collection<GENRE> getGenres(int film_id) {
+        Collection<GENRE> genres = jdbcTemplate.query(getGenreQuery,
+                (rs, rowNum) -> makeGenre(rs, rowNum),
+                film_id);
+        if (!genres.isEmpty()) {
+            return genres;
+        } else {
+            return null;
+        }
+    }
+
+    private void deleteGenre(Integer film_id) {
+        jdbcTemplate.update(deleteFilmGenres,
                 film_id);
     }
 
@@ -90,7 +134,7 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
     }
 
     private boolean findGenreForFilm(Integer genre_id, Integer film_id) {
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from film_genres where genre_id = ? AND film_id", genre_id, film_id);
+        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from films_genre where film_id = ? AND genre_id = ?", film_id, genre_id);
         if (genreRows.next()) {
             return true;
         } else {
@@ -98,32 +142,23 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         }
     }
 
-    private void saveGenre(int film_id, Collection<Integer> genres) {
-        for (int genre : genres) {
-            if (findGenre(genre)) {
-                if (!findGenreForFilm(genre, film_id)) {
+    //
+    private void saveGenre(int film_id, Collection<GENRE> genres) {
+        for (GENRE genre : genres) {
+            if (findGenre(genre.getId())) {
+                if (!findGenreForFilm(genre.getId(), film_id)) {
                     jdbcTemplate.update(saveGenreQuery,
                             film_id,
-                            genre);
+                            genre.getId());
                 }
             }
         }
     }
 
-    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        Integer film_id = rs.getInt("film_id");
+    private GENRE makeGenre(ResultSet rs, int rowNum) throws SQLException {
+        String name = rs.getString("name");
 
-        return new Film(rs.getInt("film_id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getDate("release_date").toLocalDate(),
-                rs.getShort("duration"),
-                userDbStorage.findUsersLikeToFilm(film_id),
-                MPA.valueOf(rs.getString("mpa")),
-                getGenres(film_id));
-    }
-
-    public Collection<Film> getPopular(int limit) {
-        return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
+        GENRE genre = GENRE.valueOf(name);
+        return genre;
     }
 }
