@@ -152,13 +152,29 @@ public class FilmService {
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
 
-    public Collection<Film> returnPopularFilm(int n, String genre, int year) {
+    public Collection<Film> returnPopularFilm(int count, String genre, int year) {
         Collection<Film> films = new ArrayList<>();
-        for (Film film: filmStorage.returnAllFilms()) {
-            if (film.getGenres().contains(genre) && film.getReleaseDate().getYear() == year) {
-                films.add(film);
+        if (genre.equals("null") && year == 0) {
+            return firstFilmsWithCountLike(count);
+        } else if (genre.equals("null") && year != 0) {
+            for (Film film: filmStorage.returnAllFilms()) {
+                if (film.getReleaseDate().getYear() == year) {
+                    films.add(film);
+                }
+            }
+        } else if(year == 0) {
+            for (Film film: filmStorage.returnAllFilms()) {
+                if (film.getGenres().contains(genre)) {
+                    films.add(film);
+                }
+            }
+        } else {
+            for (Film film: filmStorage.returnAllFilms()) {
+                if (film.getGenres().contains(genre) && film.getReleaseDate().getYear() == year) {
+                    films.add(film);
+                }
             }
         }
-        return films.stream().sorted(new FilmComparator()).limit(n).collect(Collectors.toList());
+        return films.stream().sorted(new FilmComparator()).limit(count).collect(Collectors.toList());
     }
 }

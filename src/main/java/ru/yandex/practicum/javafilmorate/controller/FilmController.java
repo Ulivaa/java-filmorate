@@ -54,10 +54,10 @@ public class FilmController {
         filmService.deleteUserLike(id, userId);
     }
 
-    @GetMapping("/films/popular")
+    /*@GetMapping("/films/popular")
     public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
         return filmService.firstFilmsWithCountLike(count);
-    }
+    }*/
 
     @GetMapping("/films/search")
     public Collection<Film> search(
@@ -68,9 +68,9 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public Collection<Film> returnPopularFilm(@RequestParam  int limit,
-                                              @RequestParam  String genre, @RequestParam  int year) {
-        return filmService.returnPopularFilm(limit, genre, year);
+    public Collection<Film> returnPopularFilm(@RequestParam(defaultValue = "10")  int count,
+                                              @RequestParam(defaultValue = "null") String genre, @RequestParam(defaultValue = "0")  int year) {
+        return filmService.returnPopularFilm(count, genre, year);
     }
 }
 
