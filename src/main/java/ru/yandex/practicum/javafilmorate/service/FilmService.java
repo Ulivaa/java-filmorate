@@ -7,12 +7,16 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.model.SearchType;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.HashSet;
 import java.util.List;
 
@@ -139,5 +143,18 @@ public class FilmService {
 
     public Film findFilmById(int id) {
         return readFilmStorage.findFilmById(id).orElseThrow(() -> new FilmNotFoundException(String.format("Фильм № %d не найден", id)));
+    }
+
+    public List<Film> search(String query, String by) {
+        List<String> byAsList = Arrays.stream(by.split(","))
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        if (byAsList.contains(SearchType.DIRECTOR.getType())) {
+            throw new UnsupportedOperationException("Поиск по этой категории не реализован");
+        }
+        if (byAsList.contains(SearchType.TITLE.getType())) {
+            return readFilmStorage.search(query);
+        }
+        throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
 }
