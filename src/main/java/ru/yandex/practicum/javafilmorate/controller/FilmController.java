@@ -66,6 +66,12 @@ public class FilmController {
     ) {
         return filmService.search(query, by);
     }
+
+    @GetMapping("/films/popular?limit={limit}&genre={genre}&year={year}")
+    public Collection<Film> returnPopularFilm(@PathVariable int limit,
+                                              @PathVariable String genre, @PathVariable int year) {
+        return filmService.returnPopularFilm(limit, genre, year);
+    }
 }
 
 // example

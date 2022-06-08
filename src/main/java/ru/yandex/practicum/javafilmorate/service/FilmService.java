@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.javafilmorate.comparator.FilmComparator;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.model.Film;
@@ -13,11 +14,8 @@ import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
-import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -150,5 +148,15 @@ public class FilmService {
             return readFilmStorage.search(query);
         }
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
+    }
+
+    public Collection<Film> returnPopularFilm(int n, String genre, int year) {
+        Collection<Film> films = new ArrayList<>();
+        for (Film film: filmStorage.returnAllFilms()) {
+            if (film.getGenres().contains(genre) && film.getReleaseDate().getYear() == year) {
+                films.add(film);
+            }
+        }
+        return films.stream().sorted(new FilmComparator()).limit(n).collect(Collectors.toList());
     }
 }
