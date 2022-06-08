@@ -14,18 +14,20 @@ import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository("FilmDbStorage")
 @Primary
 public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
-    private final String saveFilmQuery = "insert into films(name, description, release_date, duration, mpa) values (?, ?, ?, ?, ?)";
     private final String deleteFilm = "DELETE FROM films WHERE film_id = ?";
     private final String deleteFilmGenres = "DELETE FROM films_genre WHERE film_id = ?";
     private final String updateQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";
     private final String findByIdQuery = "select * from films where film_id = ?";
     private final String getGenreQuery = "SELECT g.name from genres g JOIN films_genre f on g.genre_id = f.genre_id WHERE film_id = ?";
+    private final String getUserFilms = "select DISTINCT * from films f join likes l on f.film_id = l.film_id where user_id = ?";
     private final String saveGenreQuery = "insert into films_genre(film_id, genre_id) values(?, ?)";
     private final String getPopularQuery = "SELECT f.film_id, f.name, f.description, f.release_date,f.duration, f.mpa\n" +
             "FROM films AS f LEFT JOIN likes AS l on f.film_id = l.film_id\n" +
@@ -90,7 +92,7 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        Integer film_id = rs.getInt("film_id");
+        int film_id = rs.getInt("film_id");
 
         return new Film(rs.getInt("film_id"),
                 rs.getString("name"),
@@ -106,6 +108,19 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     public Collection<Film> getPopular(int limit) {
         return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
+    }
+
+    private Collection<Film> getUserFilms(int user_id){
+        return jdbcTemplate.query(getUserFilms, ((rs, rowNum) -> makeFilm(rs, rowNum)), user_id);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(int user_id, int friend_id) {
+        Collection<Film> userF = getUserFilms(user_id);
+        Collection<Film> friendF = getUserFilms(friend_id);
+        return userF.stream()
+                .filter(o -> friendF.contains(o)).sorted((o1, o2) -> o2.getUsersLike().size()- o1.getUsersLike().size())
+                .collect(Collectors.toList());
     }
 
     private Collection<GENRE> getGenres(int film_id) {
@@ -142,7 +157,6 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         }
     }
 
-    //
     private void saveGenre(int film_id, Collection<GENRE> genres) {
         for (GENRE genre : genres) {
             if (findGenre(genre.getId())) {
@@ -157,7 +171,6 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     private GENRE makeGenre(ResultSet rs, int rowNum) throws SQLException {
         String name = rs.getString("name");
-
         GENRE genre = GENRE.valueOf(name);
         return genre;
     }

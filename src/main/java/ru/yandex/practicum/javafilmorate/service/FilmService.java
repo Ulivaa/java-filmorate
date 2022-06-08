@@ -14,6 +14,7 @@ import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -106,6 +107,11 @@ public class FilmService {
         if (findFilmById(id) != null && userService.findUserById(userId) != null) {
             likeStorage.delete(id, userId);
         }
+    }
+
+    public List<Film> getCommonFilms(Integer user_id, Integer friend_id){
+        return readFilmStorage.getCommonFilms(user_id, friend_id);
+
     }
 
     public Collection<Film> firstFilmsWithCountLike(Integer count) {
