@@ -12,7 +12,7 @@ import java.util.Collection;
 @Slf4j
 @RestController
 public class FilmController {
-    private FilmService filmService;
+    private final FilmService filmService;
 
     @Autowired
     public FilmController(FilmService filmService) {
@@ -53,6 +53,13 @@ public class FilmController {
     public void deleteUserLike(@PathVariable Integer id, @PathVariable Integer userId) {
         filmService.deleteUserLike(id, userId);
     }
+
+    @GetMapping("/films/common")
+    public Collection<Film> commonFilm(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
+
 
     @GetMapping("/films/popular")
     public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
