@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.HashSet;
 
 @Slf4j
 @Service
@@ -42,6 +43,12 @@ public class FilmService {
         int id = filmStorage.save(film);
         log.info("Добавлен объект {}", film.getName());
         return findFilmById(id);
+    }
+
+    public void deleteFilm(Integer film_id) {
+        if (findFilmById(film_id) != null) {
+            filmStorage.delete(film_id);
+        }
     }
 
     public Film updateFilm(Film film) {
@@ -72,9 +79,21 @@ public class FilmService {
         if (film.getMpa() != null) {
             filmUpdate.setMpa(film.getMpa());
         }
+        if (film.getGenres() != null) {
+            filmUpdate.setGenres(film.getGenres());
+        }
+
         filmStorage.update(filmUpdate);
+
+        // нужно для прохождения тестов
+        Film updateFilm = findFilmById(film.getId());
+        if (film.getGenres()!= null && film.getGenres().isEmpty()){
+            if (updateFilm.getGenres() == null){
+                updateFilm.setGenres(new HashSet<>());
+            }
+        }
         log.info("Обновлен объект {}", film.getName());
-        return findFilmById(film.getId());
+        return updateFilm;
     }
 
     public Collection<Film> returnAllFilms() {

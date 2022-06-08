@@ -3,7 +3,9 @@ package ru.yandex.practicum.javafilmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.service.RecommendationService;
 import ru.yandex.practicum.javafilmorate.service.UserService;
 
 import java.util.Collection;
@@ -15,15 +17,22 @@ import java.util.Map;
 public class UserController {
     private Map<Integer, User> users = new HashMap<>();
     private UserService userService;
+    private RecommendationService recommendationService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, RecommendationService recommendationService) {
         this.userService = userService;
+        this.recommendationService = recommendationService;
     }
 
     @PostMapping("/users")
     public User addUser(@RequestBody User user) {
         return userService.addUser(user);
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public void deleteUser(@PathVariable Integer userId) {
+        userService.deleteUser(userId);
     }
 
     @PutMapping("/users")
@@ -60,6 +69,12 @@ public class UserController {
     public Collection<User> returnCommonUserFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
         return userService.getCommonUserFriends(id, otherId);
     }
+
+    @GetMapping("/users/{id}/recommendations")
+    public Collection<Film> returnUserRecommendations(@PathVariable Integer id) {
+        return recommendationService.getRecommendations(id);
+    }
+
 }
 
 //пример

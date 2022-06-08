@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS Films
     description  varchar(200),
     release_date date,
     duration     int,
-    mpa          varchar(10)
+    mpa          varchar(30)
 );
 
 create unique index IF NOT EXISTS Films_index
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS Users
     birthday date
 );
 
-create unique index IF NOT EXISTS Users_index
+create index IF NOT EXISTS Users_index
     on Users (user_id);
 
 CREATE TABLE IF NOT EXISTS Friendships
@@ -59,3 +59,6 @@ CREATE TABLE IF NOT EXISTS Likes
     user_id int REFERENCES Users (user_id),
     primary key (film_id, user_id)
 );
+
+create index IF NOT EXISTS Likes_index
+    on Likes (film_id);
