@@ -25,7 +25,7 @@ public class ReviewService {
     }
 
     public void deleteReview(Long id) {
-        storage.deleteReview(id + 1);
+        storage.deleteReview(id);
     }
 
     public Review getReviewById(Long id) {
