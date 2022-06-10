@@ -3,8 +3,10 @@ package ru.yandex.practicum.javafilmorate.storage.impl;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.storage.EventStorage;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -21,10 +23,12 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
 
-    public FriendshipDbStorage(JdbcTemplate jdbcTemplate) {
+    public FriendshipDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     @Override
@@ -48,7 +52,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
                     friend_id,
                     false);
         }
-
+        eventStorage.save(1 , user_id , LocalDateTime.now() , "FRIEND" , "ADD");
     }
 
     @Override
@@ -70,6 +74,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
                     user_id,
                     friend_id);
         }
+        eventStorage.save(1 , user_id , LocalDateTime.now() , "FRIEND" , "REMOVE");
     }
 
     @Override

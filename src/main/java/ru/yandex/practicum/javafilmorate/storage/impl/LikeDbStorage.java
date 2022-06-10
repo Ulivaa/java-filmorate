@@ -3,10 +3,12 @@ package ru.yandex.practicum.javafilmorate.storage.impl;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.javafilmorate.storage.EventStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -17,9 +19,11 @@ public class LikeDbStorage implements LikeStorage {
     private final String allExceptUserQuery = "SELECT * FROM likes WHERE user_id <> ?";
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
-    public LikeDbStorage(JdbcTemplate jdbcTemplate) {
+    public LikeDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     @Override
@@ -27,6 +31,7 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update(saveLike,
                 film_id,
                 user_id);
+        eventStorage.save(1 , user_id , LocalDateTime.now() , "LIKE" , "ADD");
     }
 
     @Override
@@ -34,6 +39,7 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update(deleteLike,
                 film_id,
                 user_id);
+        eventStorage.save(1 , user_id , LocalDateTime.now() , "LIKE" , "REMOVE");
     }
 
     @Override
