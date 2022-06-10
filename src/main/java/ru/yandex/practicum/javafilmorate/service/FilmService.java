@@ -112,6 +112,11 @@ public class FilmService {
         }
     }
 
+    public List<Film> getCommonFilms(Integer user_id, Integer friend_id){
+        return readFilmStorage.getCommonFilms(user_id, friend_id);
+
+    }
+
     public Collection<Film> firstFilmsWithCountLike(Integer count) {
         return readFilmStorage.getPopular(count);
     }

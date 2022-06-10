@@ -13,5 +13,7 @@ public interface ReadFilmStorage {
 
     Collection<Film> getPopular(int limit);
 
+    List<Film> getCommonFilms(int user_id, int friend_id);
+
     List<Film> search(String query);
 }
