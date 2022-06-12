@@ -35,4 +35,19 @@ public class ReviewService {
     public List<Review> getReviewsOfFilm(Long filmId, int count) {
         return storage.getReviewsOfFilm(filmId).subList(0, count);
     }
+
+    public void putLike(Long reviewId, Long userId) {
+        deleteReaction(reviewId, userId);
+
+        storage.putLike(reviewId, userId);
+    }
+
+    public void putDislike(Long reviewId, Long userId) {
+        storage.putDislike(reviewId, userId);
+    }
+
+    public void deleteReaction(Long reviewId, Long userId) {
+        storage.deleteDislike(reviewId, userId);
+        storage.deleteLike(reviewId, userId);
+    }
 }

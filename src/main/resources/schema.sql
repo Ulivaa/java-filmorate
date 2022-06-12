@@ -72,3 +72,10 @@ CREATE TABLE IF NOT EXISTS Reviews
     film_id LONG REFERENCES Films (film_id),
     useful INTEGER
 );
+
+CREATE TABLE IF NOT EXISTS Reviews_reaction
+(
+    review_id INTEGER REFERENCES Reviews (review_id),
+    user_id INTEGER REFERENCES Users (user_id),
+    reaction BOOLEAN
+);

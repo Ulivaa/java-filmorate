@@ -5,7 +5,6 @@ import ru.yandex.practicum.javafilmorate.model.Review;
 
 import java.util.List;
 
-@Component
 public interface ReviewStorage {
     void addReview(Review review);
 
@@ -16,4 +15,12 @@ public interface ReviewStorage {
     Review getReviewById(Long id);
 
     List<Review> getReviewsOfFilm(Long filmId);
+
+    void putLike(Long reviewId, Long userId);
+
+    void putDislike(Long reviewId, Long userId);
+
+    void deleteLike(Long reviewId, Long UserId);
+
+    void deleteDislike(Long reviewId, Long userId);
 }

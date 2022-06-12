@@ -1,8 +1,10 @@
 package ru.yandex.practicum.javafilmorate.model;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 @Data
+@RequiredArgsConstructor
 public class Review {
     private Long reviewId;
     private String content;
@@ -19,4 +21,5 @@ public class Review {
         this.filmId = filmId;
         this.useful = useful;
     }
+
 }
