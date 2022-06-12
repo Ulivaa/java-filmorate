@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.model.Film;
-import ru.yandex.practicum.javafilmorate.model.SearchType;
 import ru.yandex.practicum.javafilmorate.service.FilmService;
 
 import java.util.Collection;
@@ -63,8 +62,9 @@ public class FilmController {
 
     @GetMapping("/films/popular")
     public Collection<Film> returnPopularFilm(@RequestParam(defaultValue = "10")  int count,
-                                              @RequestParam(defaultValue = "null") String genre, @RequestParam(defaultValue = "0")  int year) {
-        return filmService.returnPopularFilm(count, genre, year);
+                                              @RequestParam(defaultValue = "0") int year,
+                                              @RequestParam(defaultValue = "0") int genreId) {
+        return filmService.returnPopularFilm(count, year, genreId);
     }
 
     @GetMapping("/films/search")

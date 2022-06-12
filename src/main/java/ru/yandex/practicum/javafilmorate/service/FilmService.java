@@ -8,6 +8,7 @@ import ru.yandex.practicum.javafilmorate.comparator.FilmComparator;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.model.GENRE;
 import ru.yandex.practicum.javafilmorate.model.SearchType;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
@@ -157,11 +158,11 @@ public class FilmService {
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
 
-    public Collection<Film> returnPopularFilm(int count, String genre, int year) {
+    public Collection<Film> returnPopularFilm(int count, int year, int genreId ) {
         Collection<Film> films = new ArrayList<>();
-        if (genre.equals("null") && year == 0) {
+        if (genreId == 0 && year == 0) {
             return firstFilmsWithCountLike(count);
-        } else if (genre.equals("null") && year != 0) {
+        } else if (genreId == 0) {
             for (Film film: filmStorage.returnAllFilms()) {
                 if (film.getReleaseDate().getYear() == year) {
                     films.add(film);
@@ -169,14 +170,27 @@ public class FilmService {
             }
         } else if(year == 0) {
             for (Film film: filmStorage.returnAllFilms()) {
-                if (film.getGenres().contains(genre)) {
-                    films.add(film);
+                ArrayList<Integer> genres = new ArrayList<>();
+                if (film.getGenres()!=null){
+                    for (GENRE genre: film.getGenres()) {
+                        genres.add(genre.getId());
+                    } if (genres.contains(genreId)) {
+                        films.add(film);
+                    }
+                    genres.clear();
                 }
             }
         } else {
             for (Film film: filmStorage.returnAllFilms()) {
-                if (film.getGenres().contains(genre) && film.getReleaseDate().getYear() == year) {
-                    films.add(film);
+                ArrayList<Integer> genres = new ArrayList<>();
+                if (film.getGenres()!=null){
+                    for (GENRE genre: film.getGenres()) {
+                        genres.add(genre.getId());
+                    }
+                    if (genres.contains(genreId) && film.getReleaseDate().getYear() == year) {
+                        films.add(film);
+                    }
+                    genres.clear();
                 }
             }
         }
