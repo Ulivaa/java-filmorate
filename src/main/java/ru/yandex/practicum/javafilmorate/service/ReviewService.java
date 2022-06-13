@@ -46,8 +46,10 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsOfFilm(Long filmId, int count) {
+
         filmStorage.findFilmById(filmId.intValue()).orElseThrow(() ->
                 new FilmNotFoundException("Фильм с id " + filmId + " не найден"));
+
         return storage.getReviewsOfFilm(filmId).subList(0, count);
     }
 

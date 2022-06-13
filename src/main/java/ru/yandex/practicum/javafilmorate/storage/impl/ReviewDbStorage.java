@@ -1,5 +1,6 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.javafilmorate.exception.ReviewDoesNotExistException;
@@ -62,8 +63,13 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public Optional<Review> getReviewById(Long id) {
         String sqlQuery = "SELECT * FROM Reviews WHERE review_id = ?";
+        try {
 
-        return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::reviewFromSQL, id));
+
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::reviewFromSQL, id));
+        } catch (DataAccessException e) {
+            throw new ReviewDoesNotExistException();
+        }
     }
 
     @Override
