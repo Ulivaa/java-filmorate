@@ -2,12 +2,14 @@ package ru.yandex.practicum.javafilmorate.storage.impl;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.javafilmorate.exception.ReviewDoesNotExistException;
 import ru.yandex.practicum.javafilmorate.model.Review;
 import ru.yandex.practicum.javafilmorate.storage.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Component
 public class ReviewDbStorage implements ReviewStorage {
@@ -58,10 +60,10 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public Review getReviewById(Long id) {
+    public Optional<Review> getReviewById(Long id) {
         String sqlQuery = "SELECT * FROM Reviews WHERE review_id = ?";
 
-        return jdbcTemplate.queryForObject(sqlQuery, this::reviewFromSQL, id);
+        return Optional.ofNullable(jdbcTemplate.queryForObject(sqlQuery, this::reviewFromSQL, id));
     }
 
     @Override
@@ -73,33 +75,35 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void putLike(Long reviewId, Long userId) {
-        String sqlQuery = "INSERT INTO Reviews_likes VALUES (?, ?, true)";
+        String sqlQuery = "INSERT INTO Reviews_reaction VALUES (?, ?, true)";
 
         jdbcTemplate.update(sqlQuery, reviewId, userId);
     }
 
     @Override
     public void putDislike(Long reviewId, Long userId) {
-        String sqlQuery = "INSERT INTO Reviews_likes VALUES (?, ?, false)";
+        String sqlQuery = "INSERT INTO Reviews_reaction VALUES (?, ?, false)";
 
         jdbcTemplate.update(sqlQuery, reviewId, userId);
     }
 
     @Override
     public void deleteLike(Long reviewId, Long userId) {
-        String sqlQuery = "DELETE FROM Reviews_likes WHERE review_id = ? AND user_id = ? AND reaction = true";
+        String sqlQuery = "DELETE FROM Reviews_reaction WHERE review_id = ? AND user_id = ? AND reaction = true";
 
         jdbcTemplate.update(sqlQuery, reviewId, userId);
     }
 
     @Override
     public void deleteDislike(Long reviewId, Long userId) {
-        String sqlQuery = "DELETE FROM Reviews_likes WHERE review_id = ? AND user_id = ? AND reaction = false";
+        String sqlQuery = "DELETE FROM Reviews_reaction WHERE review_id = ? AND user_id = ? AND reaction = false";
 
         jdbcTemplate.update(sqlQuery, reviewId, userId);
     }
 
     private Review reviewFromSQL(ResultSet rs, Integer rowNum) throws SQLException {
+
+
         Long reviewId = rs.getLong("review_id");
         String content = rs.getString("content");
         Boolean isPositive = rs.getBoolean("is_positive");
