@@ -52,7 +52,7 @@ public class FriendshipDbStorage implements FriendshipStorage {
                     friend_id,
                     false);
         }
-        eventStorage.save(1 , user_id , LocalDateTime.now() , "FRIEND" , "ADD");
+        eventStorage.save(friend_id , user_id , LocalDateTime.now() , "FRIEND" , "ADD");
     }
 
     @Override

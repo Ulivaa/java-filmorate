@@ -31,7 +31,7 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update(saveLike,
                 film_id,
                 user_id);
-        eventStorage.save(1 , user_id , LocalDateTime.now() , "LIKE" , "ADD");
+        eventStorage.save(film_id , user_id , LocalDateTime.now() , "LIKE" , "ADD");
     }
 
     @Override
@@ -39,7 +39,7 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update(deleteLike,
                 film_id,
                 user_id);
-        eventStorage.save(1 , user_id , LocalDateTime.now() , "LIKE" , "REMOVE");
+        eventStorage.save(film_id , user_id , LocalDateTime.now() , "LIKE" , "REMOVE");
     }
 
     @Override
