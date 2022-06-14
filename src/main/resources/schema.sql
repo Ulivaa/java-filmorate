@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS Event
     timestamp TIMESTAMP ,
     event_type varchar(100) ,
     operation varchar(100)
-)
+);
 
 CREATE TABLE IF NOT EXISTS Reviews
 (
