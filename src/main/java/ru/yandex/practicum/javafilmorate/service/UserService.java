@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.javafilmorate.model.Event;
 import ru.yandex.practicum.javafilmorate.model.User;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
@@ -13,6 +14,8 @@ import ru.yandex.practicum.javafilmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -85,6 +88,21 @@ public class UserService {
 
     public User findUserById(Integer id) {
         return readUserStorage.findUserById(id).orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
+    }
+
+    public Collection<Event> findEventsFriendsUser(int id){
+        Collection<Event> eventsUser = readUserStorage.findEventsUser(id);
+        return eventsUser.stream().
+                sorted(this::sortedEventByDate).collect(Collectors.toList());
+    }
+
+    public int sortedEventByDate(Event o1 , Event o2){
+        if (o1.getTimestamp().isAfter(o2.getTimestamp()))
+            return -1;
+        else if(o1.getTimestamp().isBefore(o2.getTimestamp()))
+            return 1;
+        else
+            return 0;
     }
 
     private boolean validateDate(User user) {

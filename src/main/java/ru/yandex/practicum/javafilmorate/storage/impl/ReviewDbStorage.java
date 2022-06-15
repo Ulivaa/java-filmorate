@@ -5,20 +5,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.javafilmorate.exception.ReviewDoesNotExistException;
 import ru.yandex.practicum.javafilmorate.model.Review;
+import ru.yandex.practicum.javafilmorate.storage.EventStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReviewStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
 
-    public ReviewDbStorage(JdbcTemplate jdbcTemplate) {
+    public ReviewDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     @Override
@@ -32,6 +36,8 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getUserId(),
                 review.getFilmId(),
                 review.getUseful());
+        eventStorage.save(Math.toIntExact(review.getReviewId()) , Math.toIntExact(review.getUserId()) ,
+                LocalDateTime.now() , "REVIEW" , "ADD");
     }
 
     @Override
@@ -55,9 +61,12 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void deleteReview(Long id) {
+        Review review = getReviewById(id).orElseThrow();
         String sqlQuery = "DELETE FROM Reviews WHERE review_id = ?";
 
         jdbcTemplate.update(sqlQuery, id);
+        eventStorage.save(Math.toIntExact(id) , Math.toIntExact(review.getReviewId()) ,
+                LocalDateTime.now() , "REVIEW" , "REMOVE");
     }
 
     @Override
