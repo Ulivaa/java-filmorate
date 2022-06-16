@@ -43,9 +43,9 @@ public class UserService {
         return findUserById(id);
     }
 
-    public void deleteUser(Integer user_id) {
-        if (findUserById(user_id) != null) {
-            userStorage.delete(user_id);
+    public void deleteUser(Integer userId) {
+        if (findUserById(userId) != null) {
+            userStorage.delete(userId);
         }
     }
 
@@ -79,6 +79,7 @@ public class UserService {
     }
 
     public Collection<User> getUserFriends(Integer id) {
+        findUserById(id);
         return friendshipStorage.getFriends(id);
     }
 
@@ -90,16 +91,16 @@ public class UserService {
         return readUserStorage.findUserById(id).orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)));
     }
 
-    public Collection<Event> findEventsFriendsUser(int id){
+    public Collection<Event> findEventsFriendsUser(int id) {
         Collection<Event> eventsUser = readUserStorage.findEventsUser(id);
         return eventsUser.stream().
                 sorted(this::sortedEventByDate).collect(Collectors.toList());
     }
 
-    public int sortedEventByDate(Event o1 , Event o2){
+    public int sortedEventByDate(Event o1, Event o2) {
         if (o1.getTimestamp().isAfter(o2.getTimestamp()))
             return -1;
-        else if(o1.getTimestamp().isBefore(o2.getTimestamp()))
+        else if (o1.getTimestamp().isBefore(o2.getTimestamp()))
             return 1;
         else
             return 0;

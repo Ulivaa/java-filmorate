@@ -46,9 +46,9 @@ public class FilmService {
         return findFilmById(id);
     }
 
-    public void deleteFilm(Integer film_id) {
-        if (findFilmById(film_id) != null) {
-            filmStorage.delete(film_id);
+    public void deleteFilm(Integer filmId) {
+        if (findFilmById(filmId) != null) {
+            filmStorage.delete(filmId);
         }
     }
 
@@ -88,8 +88,8 @@ public class FilmService {
 
         // нужно для прохождения тестов
         Film updateFilm = findFilmById(film.getId());
-        if (film.getGenres()!= null && film.getGenres().isEmpty()){
-            if (updateFilm.getGenres() == null){
+        if (film.getGenres() != null && film.getGenres().isEmpty()) {
+            if (updateFilm.getGenres() == null) {
                 updateFilm.setGenres(new HashSet<>());
             }
         }
@@ -101,9 +101,9 @@ public class FilmService {
         return filmStorage.returnAllFilms();
     }
 
-    public void addUserLike(Integer film_id, Integer userId) {
-        if (findFilmById(film_id) != null && userService.findUserById(userId) != null) {
-            likeStorage.save(film_id, userId);
+    public void addUserLike(Integer filmId, Integer userId) {
+        if (findFilmById(filmId) != null && userService.findUserById(userId) != null) {
+            likeStorage.save(filmId, userId);
         }
     }
 
@@ -113,9 +113,10 @@ public class FilmService {
         }
     }
 
-    public List<Film> getCommonFilms(Integer user_id, Integer friend_id){
-        return readFilmStorage.getCommonFilms(user_id, friend_id);
-
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userService.findUserById(userId);
+        userService.findUserById(friendId);
+        return readFilmStorage.getCommonFilms(userId, friendId);
     }
 
     public Collection<Film> firstFilmsWithCountLike(Integer count) {
@@ -158,33 +159,34 @@ public class FilmService {
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
 
-    public Collection<Film> returnPopularFilm(int count, int year, int genreId ) {
+    public Collection<Film> returnPopularFilm(int count, int year, int genreId) {
         Collection<Film> films = new ArrayList<>();
         if (genreId == 0 && year == 0) {
             return firstFilmsWithCountLike(count);
         } else if (genreId == 0) {
-            for (Film film: filmStorage.returnAllFilms()) {
+            for (Film film : filmStorage.returnAllFilms()) {
                 if (film.getReleaseDate().getYear() == year) {
                     films.add(film);
                 }
             }
-        } else if(year == 0) {
-            for (Film film: filmStorage.returnAllFilms()) {
+        } else if (year == 0) {
+            for (Film film : filmStorage.returnAllFilms()) {
                 ArrayList<Integer> genres = new ArrayList<>();
-                if (film.getGenres()!=null){
-                    for (GENRE genre: film.getGenres()) {
+                if (film.getGenres() != null) {
+                    for (GENRE genre : film.getGenres()) {
                         genres.add(genre.getId());
-                    } if (genres.contains(genreId)) {
+                    }
+                    if (genres.contains(genreId)) {
                         films.add(film);
                     }
                     genres.clear();
                 }
             }
         } else {
-            for (Film film: filmStorage.returnAllFilms()) {
+            for (Film film : filmStorage.returnAllFilms()) {
                 ArrayList<Integer> genres = new ArrayList<>();
-                if (film.getGenres()!=null){
-                    for (GENRE genre: film.getGenres()) {
+                if (film.getGenres() != null) {
+                    for (GENRE genre : film.getGenres()) {
                         genres.add(genre.getId());
                     }
                     if (genres.contains(genreId) && film.getReleaseDate().getYear() == year) {
