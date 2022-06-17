@@ -27,19 +27,19 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public void save(int film_id, int user_id) {
+    public void save(int filmId, int userId) {
         jdbcTemplate.update(saveLike,
-                film_id,
-                user_id);
-        eventStorage.save(film_id , user_id , LocalDateTime.now() , "LIKE" , "ADD");
+                filmId,
+                userId);
+        eventStorage.save(filmId, userId, LocalDateTime.now(), "LIKE", "ADD");
     }
 
     @Override
-    public void delete(int film_id, int user_id) {
+    public void delete(int filmId, int userId) {
         jdbcTemplate.update(deleteLike,
-                film_id,
-                user_id);
-        eventStorage.save(film_id , user_id , LocalDateTime.now() , "LIKE" , "REMOVE");
+                filmId,
+                userId);
+        eventStorage.save(filmId, userId, LocalDateTime.now(), "LIKE", "REMOVE");
     }
 
     @Override

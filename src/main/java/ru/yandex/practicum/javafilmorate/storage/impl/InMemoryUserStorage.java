@@ -19,7 +19,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void delete(Integer user_id) {
+    public void delete(Integer userId) {
 
     }
 

@@ -21,8 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void delete(Integer film_id) {
-
+    public void delete(Integer filmId) {
     }
 
     @Override

@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     private final String deleteFilm = "DELETE FROM films WHERE film_id = ?";
+    private final String deleteFilmFromFilmsGenre = "DELETE FROM films_genre WHERE film_id = ?";
+    private final String deleteFilmFromLikes = "DELETE FROM likes WHERE film_id = ?";
     private final String deleteFilmGenres = "DELETE FROM films_genre WHERE film_id = ?";
     private final String updateQuery = "update films set name = ?, description = ?, release_date = ?, duration = ?,  mpa = ? where film_id =? ";
     private final String findByIdQuery = "select * from films where film_id = ?";
@@ -53,17 +55,21 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("film_id");
-        int film_id = simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue();
+        int filmId = simpleJdbcInsert.executeAndReturnKey(film.toMap()).intValue();
         if (film.getGenres() != null) {
-            saveGenre(film_id, film.getGenres());
+            saveGenre(filmId, film.getGenres());
         }
-        return film_id;
+        return filmId;
     }
 
     @Override
-    public void delete(Integer film_id) {
+    public void delete(Integer filmId) {
+        jdbcTemplate.update(deleteFilmFromLikes,
+                filmId);
+        jdbcTemplate.update(deleteFilmFromFilmsGenre,
+                filmId);
         jdbcTemplate.update(deleteFilm,
-                film_id);
+                filmId);
     }
 
     public void update(Film film) {
@@ -75,12 +81,8 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
                 film.getMpa().toString(),
                 film.getId());
         if (film.getGenres() != null) {
-            if (!film.getGenres().isEmpty()) {
-                deleteGenre(film.getId());
-                saveGenre(film.getId(), film.getGenres());
-            } else {
-                deleteGenre(film.getId());
-            }
+            deleteGenre(film.getId());
+            saveGenre(film.getId(), film.getGenres());
         }
     }
 
@@ -89,24 +91,24 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         return jdbcTemplate.query("SELECT * from films", (rs, rowNum) -> makeFilm(rs, rowNum));
     }
 
-    public Optional<Film> findFilmById(int film_id) {
+    public Optional<Film> findFilmById(int filmId) {
         return jdbcTemplate.query(
-                findByIdQuery, (rs, rowNum) -> makeFilm(rs, rowNum), film_id
+                findByIdQuery, (rs, rowNum) -> makeFilm(rs, rowNum), filmId
         ).stream().findAny();
     }
 
 
     private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
-        int film_id = rs.getInt("film_id");
+        int filmId = rs.getInt("film_id");
 
         return new Film(rs.getInt("film_id"),
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getDate("release_date").toLocalDate(),
                 rs.getShort("duration"),
-                userDbStorage.findUsersLikeToFilm(film_id),
+                userDbStorage.findUsersLikeToFilm(filmId),
                 MPA.valueOf(rs.getString("mpa")),
-                getGenres(film_id)
+                getGenres(filmId)
 //                new HashSet<GENRE>()
         );
     }
@@ -115,23 +117,23 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         return jdbcTemplate.query(getPopularQuery, ((rs, rowNum) -> makeFilm(rs, rowNum)), limit);
     }
 
-    private Collection<Film> getUserFilms(int user_id){
-        return jdbcTemplate.query(getUserFilms, ((rs, rowNum) -> makeFilm(rs, rowNum)), user_id);
+    private Collection<Film> getUserFilms(int userId) {
+        return jdbcTemplate.query(getUserFilms, ((rs, rowNum) -> makeFilm(rs, rowNum)), userId);
     }
 
     @Override
-    public List<Film> getCommonFilms(int user_id, int friend_id) {
-        Collection<Film> userF = getUserFilms(user_id);
-        Collection<Film> friendF = getUserFilms(friend_id);
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        Collection<Film> userF = getUserFilms(userId);
+        Collection<Film> friendF = getUserFilms(friendId);
         return userF.stream()
-                .filter(o -> friendF.contains(o)).sorted((o1, o2) -> o2.getUsersLike().size()- o1.getUsersLike().size())
+                .filter(o -> friendF.contains(o)).sorted((o1, o2) -> o2.getUsersLike().size() - o1.getUsersLike().size())
                 .collect(Collectors.toList());
     }
 
-    private Collection<GENRE> getGenres(int film_id) {
+    private Collection<GENRE> getGenres(int filmId) {
         Collection<GENRE> genres = jdbcTemplate.query(getGenreQuery,
                 (rs, rowNum) -> makeGenre(rs, rowNum),
-                film_id);
+                filmId);
         if (!genres.isEmpty()) {
             return genres;
         } else {
@@ -139,9 +141,9 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         }
     }
 
-    private void deleteGenre(Integer film_id) {
+    private void deleteGenre(Integer filmId) {
         jdbcTemplate.update(deleteFilmGenres,
-                film_id);
+                filmId);
     }
 
     private boolean findGenre(Integer id) {
@@ -153,8 +155,8 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         }
     }
 
-    private boolean findGenreForFilm(Integer genre_id, Integer film_id) {
-        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from films_genre where film_id = ? AND genre_id = ?", film_id, genre_id);
+    private boolean findGenreForFilm(Integer genreId, Integer filmId) {
+        SqlRowSet genreRows = jdbcTemplate.queryForRowSet("select * from films_genre where film_id = ? AND genre_id = ?", filmId, genreId);
         if (genreRows.next()) {
             return true;
         } else {
@@ -162,13 +164,15 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
         }
     }
 
-    private void saveGenre(int film_id, Collection<GENRE> genres) {
-        for (GENRE genre : genres) {
-            if (findGenre(genre.getId())) {
-                if (!findGenreForFilm(genre.getId(), film_id)) {
-                    jdbcTemplate.update(saveGenreQuery,
-                            film_id,
-                            genre.getId());
+    private void saveGenre(int filmId, Collection<GENRE> genres) {
+        if (!genres.isEmpty()) {
+            for (GENRE genre : genres) {
+                if (findGenre(genre.getId())) {
+                    if (!findGenreForFilm(genre.getId(), filmId)) {
+                        jdbcTemplate.update(saveGenreQuery,
+                                filmId,
+                                genre.getId());
+                    }
                 }
             }
         }
