@@ -33,49 +33,49 @@ public class FriendshipDbStorage implements FriendshipStorage {
     }
 
     @Override
-    public void save(int user_id, int friend_id) {
+    public void save(int userId, int friendId) {
         /*Проверка на существование запроса на дружбу*/
-        if (jdbcTemplate.queryForRowSet(isConfirmedQuery, friend_id, user_id)
+        if (jdbcTemplate.queryForRowSet(isConfirmedQuery, friendId, userId)
                 .next()) {
             /* Добавление подтвержденной дружбы у обоих */
             jdbcTemplate.update(saveFriendshipUserQuery,
-                    user_id,
-                    friend_id,
+                    userId,
+                    friendId,
                     true);
             jdbcTemplate.update(updateConfirmFriendQuery,
                     true,
-                    friend_id,
-                    user_id);
+                    friendId,
+                    userId);
         } else {
             /*Добавление запроса на дружбу*/
             jdbcTemplate.update(saveFriendshipUserQuery,
-                    user_id,
-                    friend_id,
+                    userId,
+                    friendId,
                     false);
         }
-        eventStorage.save(friend_id , user_id , LocalDateTime.now() , "FRIEND" , "ADD");
+        eventStorage.save(friendId, userId, LocalDateTime.now(), "FRIEND", "ADD");
     }
 
     @Override
-    public void delete(int user_id, int friend_id) {
+    public void delete(int userId, int friendId) {
         /* Проверка на существование дружбы*/
-        if (jdbcTemplate.queryForRowSet(hasFriendshipQuery, user_id, friend_id)
+        if (jdbcTemplate.queryForRowSet(hasFriendshipQuery, userId, friendId)
                 .next()) {
             /* Проверка на сущестование подтверждения */
-            if (jdbcTemplate.queryForRowSet(hasConfirmFriendshipQuery, friend_id, user_id)
+            if (jdbcTemplate.queryForRowSet(hasConfirmFriendshipQuery, friendId, userId)
                     .next()) {
                 /* Удаление подтверждения дружбы у бывшего друга */
                 jdbcTemplate.update(deleteConfirmForFriend,
                         false,
-                        friend_id,
-                        user_id);
+                        friendId,
+                        userId);
             }
             /* Удаление дружбы */
             jdbcTemplate.update(deleteFriendship,
-                    user_id,
-                    friend_id);
+                    userId,
+                    friendId);
         }
-        eventStorage.save(1 , user_id , LocalDateTime.now() , "FRIEND" , "REMOVE");
+        eventStorage.save(1, userId, LocalDateTime.now(), "FRIEND", "REMOVE");
     }
 
     @Override
@@ -84,11 +84,11 @@ public class FriendshipDbStorage implements FriendshipStorage {
     }
 
     @Override
-    public Collection<User> getCommonFriends(Integer user_id, Integer user2_id) {
+    public Collection<User> getCommonFriends(Integer userId, Integer user2Id) {
 
-        return getFriends(user_id).stream()
+        return getFriends(userId).stream()
                 .distinct()
-                .filter(o -> getFriends(user2_id).contains(o))
+                .filter(o -> getFriends(user2Id).contains(o))
                 .collect(Collectors.toSet());
     }
 }

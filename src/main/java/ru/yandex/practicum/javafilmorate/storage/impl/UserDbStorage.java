@@ -25,6 +25,8 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
 
     private final String saveUserQuery = "insert into users(login, name, email, birthday) values (?, ?, ?, ?)";
     private final String deleteUser = "DELETE FROM users WHERE user_id = ?";
+    private final String deleteUserFromFriendShips = "DELETE FROM friendships WHERE user_id = ? OR friend_id = ? ";
+    private final String deleteUserFromlikes = "DELETE FROM likes WHERE user_id = ? ";
     private final String updateUserQuery = "update users set login = ?, name = ?, email = ?, birthday = ? where user_id =? ";
     private final String findUserByIdQuery = "select * from users where user_id = ?";
     private final String findUserByEmailQuery = "select * from users where email = ?";
@@ -33,7 +35,7 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
     JdbcTemplate jdbcTemplate;
     private final FriendshipStorage friendshipStorage;
 
-    public UserDbStorage(JdbcTemplate jdbcTemplate , FriendshipStorage friendshipStorage) {
+    public UserDbStorage(JdbcTemplate jdbcTemplate, FriendshipStorage friendshipStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.friendshipStorage = friendshipStorage;
     }
@@ -47,9 +49,13 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
     }
 
     @Override
-    public void delete(Integer user_id) {
+    public void delete(Integer userId) {
+        jdbcTemplate.update(deleteUserFromlikes,
+                userId);
+        jdbcTemplate.update(deleteUserFromFriendShips,
+                userId, userId);
         jdbcTemplate.update(deleteUser,
-                user_id);
+                userId);
     }
 
     @Override
@@ -81,8 +87,8 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
         return jdbcTemplate.query("SELECT * from users", (rs, rowNum) -> makeUser(rs, rowNum));
     }
 
-    public Collection<User> findUsersLikeToFilm(Integer film_id) {
-        return jdbcTemplate.query(findUsersLikeQuery, (rs, rowNum) -> makeUser(rs, rowNum), film_id);
+    public Collection<User> findUsersLikeToFilm(Integer filmId) {
+        return jdbcTemplate.query(findUsersLikeQuery, (rs, rowNum) -> makeUser(rs, rowNum), filmId);
 
     }
 
