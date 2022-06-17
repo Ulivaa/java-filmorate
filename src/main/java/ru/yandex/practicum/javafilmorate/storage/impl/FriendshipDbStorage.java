@@ -1,5 +1,6 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
@@ -23,10 +24,10 @@ public class FriendshipDbStorage implements FriendshipStorage {
 
 
     private final JdbcTemplate jdbcTemplate;
-    private final EventStorage eventStorage;
+    private EventStorage eventStorage;
 
 
-    public FriendshipDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
+    public FriendshipDbStorage(JdbcTemplate jdbcTemplate, @Lazy EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.eventStorage = eventStorage;
     }

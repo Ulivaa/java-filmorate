@@ -29,7 +29,6 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
     private final String findUserByIdQuery = "select * from users where user_id = ?";
     private final String findUserByEmailQuery = "select * from users where email = ?";
     private final String findUsersLikeQuery = "SELECT * from users u JOIN likes l on u.user_id = l.user_id WHERE film_id = ?";
-    private final String findEventsUser = "SELECT * FROM event WHERE user_id = ?";
 
     JdbcTemplate jdbcTemplate;
     private final FriendshipStorage friendshipStorage;
@@ -86,27 +85,6 @@ public class UserDbStorage implements UserStorage, ReadUserStorage {
         return jdbcTemplate.query(findUsersLikeQuery, (rs, rowNum) -> makeUser(rs, rowNum), film_id);
 
     }
-
-    public Collection<Event> findEventsUser(int id){
-        List<Event> eventsFriends = new ArrayList<>();
-        Collection<User> friends = friendshipStorage.getFriends(id);
-        for(User friend : friends){
-            eventsFriends.addAll(jdbcTemplate.query(findEventsUser, this::makeEvent, friend.getId()));
-        }
-        return eventsFriends;
-    }
-
-    private Event makeEvent(ResultSet rs, int i) throws SQLException {
-        String[] split = (rs.getString("timestamp")).split("\\.");
-        LocalDateTime timestamp = LocalDateTime.parse(split[0] , DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        return new Event(rs.getInt("event_id") ,
-                rs.getInt("entity_id") ,
-                rs.getInt("user_id") ,
-                timestamp ,
-                rs.getString("event_type") ,
-                rs.getString("operation"));
-    }
-
 
     protected static User makeUser(ResultSet rs, int rowNum) throws SQLException {
         Integer id = rs.getInt("user_id");

@@ -8,13 +8,13 @@ import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.Event;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.storage.EventStorage;
 import ru.yandex.practicum.javafilmorate.storage.FriendshipStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadUserStorage;
 import ru.yandex.practicum.javafilmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,12 +23,14 @@ public class UserService {
     private UserStorage userStorage;
     private ReadUserStorage readUserStorage;
     private FriendshipStorage friendshipStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage, ReadUserStorage readUserStorage) {
+    public UserService(@Qualifier("UserDbStorage") UserStorage userStorage, FriendshipStorage friendshipStorage, ReadUserStorage readUserStorage, EventStorage eventStorage) {
         this.userStorage = userStorage;
         this.friendshipStorage = friendshipStorage;
         this.readUserStorage = readUserStorage;
+        this.eventStorage = eventStorage;
     }
 
     public User addUser(User user) {
@@ -91,7 +93,8 @@ public class UserService {
     }
 
     public Collection<Event> findEventsFriendsUser(int id){
-        Collection<Event> eventsUser = readUserStorage.findEventsUser(id);
+        User userById = findUserById(id);
+        Collection<Event> eventsUser = eventStorage.findEventsUser(userById.getId());
         return eventsUser.stream().
                 sorted(this::sortedEventByDate).collect(Collectors.toList());
     }
