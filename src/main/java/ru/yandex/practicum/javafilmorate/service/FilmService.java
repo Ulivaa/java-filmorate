@@ -3,6 +3,7 @@ package ru.yandex.practicum.javafilmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.comparator.FilmComparator;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
@@ -157,43 +158,8 @@ public class FilmService {
         }
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
-
-    public Collection<Film> returnPopularFilm(int count, int year, int genreId ) {
-        Collection<Film> films = new ArrayList<>();
-        if (genreId == 0 && year == 0) {
-            return firstFilmsWithCountLike(count);
-        } else if (genreId == 0) {
-            for (Film film: filmStorage.returnAllFilms()) {
-                if (film.getReleaseDate().getYear() == year) {
-                    films.add(film);
-                }
-            }
-        } else if(year == 0) {
-            for (Film film: filmStorage.returnAllFilms()) {
-                ArrayList<Integer> genres = new ArrayList<>();
-                if (film.getGenres()!=null){
-                    for (GENRE genre: film.getGenres()) {
-                        genres.add(genre.getId());
-                    } if (genres.contains(genreId)) {
-                        films.add(film);
-                    }
-                    genres.clear();
-                }
-            }
-        } else {
-            for (Film film: filmStorage.returnAllFilms()) {
-                ArrayList<Integer> genres = new ArrayList<>();
-                if (film.getGenres()!=null){
-                    for (GENRE genre: film.getGenres()) {
-                        genres.add(genre.getId());
-                    }
-                    if (genres.contains(genreId) && film.getReleaseDate().getYear() == year) {
-                        films.add(film);
-                    }
-                    genres.clear();
-                }
-            }
-        }
-        return films.stream().sorted(new FilmComparator()).limit(count).collect(Collectors.toList());
+    
+    public Collection<Film> getPopularFilms(int count, int genreId, int year) {
+        return filmStorage.getPopularFilms(count, genreId, year);
     }
 }

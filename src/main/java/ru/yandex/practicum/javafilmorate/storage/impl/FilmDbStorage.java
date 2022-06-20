@@ -1,5 +1,6 @@
 package ru.yandex.practicum.javafilmorate.storage.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.javafilmorate.model.MPA;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
+import javax.validation.ValidationException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 
 @Repository("FilmDbStorage")
 @Primary
+@Slf4j
 public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
 
     private final String deleteFilm = "DELETE FROM films WHERE film_id = ?";
@@ -183,5 +186,35 @@ public class FilmDbStorage implements FilmStorage, ReadFilmStorage {
     @Override
     public List<Film> search(String query) {
         return jdbcTemplate.query(searchQuery, this::makeFilm, "%" + query + "%");
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count, int genreId, int year) {
+        if (genreId < 0 || year < 0) {
+            throw new ValidationException("Cannot be negative");
+        }
+        if (genreId == 0 && year == 0) {
+            return jdbcTemplate.query("SELECT * FROM Films ORDER BY mpa DESC LIMIT ?",this::makeFilm, count);
+        } else if (year == 0) {
+            return (Collection<Film>) jdbcTemplate.query("SELECT *" +
+                    "FROM Films " +
+                    "INNER JOIN Films_genre ON Films.film_id = Films_genre.film_id " +
+                    "WHERE Films_genre.genre_id = ?" +
+                    "ORDER BY Films.mpa DESC " +
+                    "LIMIT ?",this::makeFilm, genreId, count);
+        } else if (genreId == 0) {
+            return (Collection<Film>) jdbcTemplate.query("SELECT * " +
+                    "from Films " +
+                    "where extract(year from release_date) = ? " +
+                    "order by mpa desc " +
+                    "limit ?",this::makeFilm, year, count);
+        } else {
+            return (Collection<Film>) jdbcTemplate.query("select * " +
+                    "from Films " +
+                    "inner join Films_genre on Films.film_id = Films_genre.film_id " +
+                    "where Films_genre.genre_id = ? and extract(year from Films.release_date) = ? " +
+                    "order by Films.mpa desc " +
+                    "limit ?",this::makeFilm, genreId, year, count);
+        }
     }
 }

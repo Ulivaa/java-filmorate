@@ -2,10 +2,12 @@ package ru.yandex.practicum.javafilmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.service.FilmService;
 
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 
 @Slf4j
@@ -58,13 +60,13 @@ public class FilmController {
         return filmService.getCommonFilms(userId, friendId);
     }
 
-
-
     @GetMapping("/films/popular")
-    public Collection<Film> returnPopularFilm(@RequestParam(defaultValue = "10")  int count,
-                                              @RequestParam(defaultValue = "0") int year,
-                                              @RequestParam(defaultValue = "0") int genreId) {
-        return filmService.returnPopularFilm(count, year, genreId);
+    public Collection<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10")
+                                            @Positive(message = "Count must be positive") int count,
+                                     @RequestParam(required = false, defaultValue = "0") int genreId,
+                                     @RequestParam(required = false, defaultValue = "0") int year) {
+        log.info("Get {} popular films", count);
+        return filmService.getPopularFilms(count, genreId, year);
     }
 
     @GetMapping("/films/search")
