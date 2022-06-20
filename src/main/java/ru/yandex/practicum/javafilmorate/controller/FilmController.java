@@ -66,7 +66,7 @@ public class FilmController {
                                      @RequestParam(required = false, defaultValue = "0") int genreId,
                                      @RequestParam(required = false, defaultValue = "0") int year) {
         log.info("Get {} popular films", count);
-        return filmService.getPopularFilms(count, genreId, year);
+        return filmService.returnPopularFilm(count, genreId, year);
     }
 
     @GetMapping("/films/search")
