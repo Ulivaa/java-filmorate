@@ -61,7 +61,7 @@ public class FilmController {
     }
 
     @GetMapping("/films/popular")
-    public Collection<Film> getPopularFilms(@RequestParam(required = false, defaultValue = "10")
+    public Collection<Film> returnPopularFilms(@RequestParam(required = false, defaultValue = "10")
                                             @Positive(message = "Count must be positive") int count,
                                      @RequestParam(required = false, defaultValue = "0") int genreId,
                                      @RequestParam(required = false, defaultValue = "0") int year) {

@@ -158,7 +158,7 @@ public class FilmService {
         }
         throw new UnsupportedOperationException("Поиск по этой категории не реализован");
     }
-    
+
     public Collection<Film> getPopularFilms(int count, int genreId, int year) {
         return filmStorage.getPopularFilms(count, genreId, year);
     }
