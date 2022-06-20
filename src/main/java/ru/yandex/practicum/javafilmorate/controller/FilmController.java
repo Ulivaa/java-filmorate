@@ -13,7 +13,7 @@ import java.util.Collection;
 @Slf4j
 @RestController
 public class FilmController {
-    private FilmService filmService;
+    private final FilmService filmService;
 
     @Autowired
     public FilmController(FilmService filmService) {

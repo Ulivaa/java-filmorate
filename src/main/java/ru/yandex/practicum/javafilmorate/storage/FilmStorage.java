@@ -8,7 +8,7 @@ import java.util.Collection;
 public interface FilmStorage {
     int save(Film film);
 
-    void delete(Integer film_id);
+    void delete(Integer filmId);
 
     Collection<Film> returnAllFilms();
 

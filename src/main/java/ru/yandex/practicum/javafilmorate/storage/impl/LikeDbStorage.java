@@ -3,10 +3,12 @@ package ru.yandex.practicum.javafilmorate.storage.impl;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.javafilmorate.storage.EventStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Repository
@@ -17,23 +19,27 @@ public class LikeDbStorage implements LikeStorage {
     private final String allExceptUserQuery = "SELECT * FROM likes WHERE user_id <> ?";
 
     private final JdbcTemplate jdbcTemplate;
+    private final EventStorage eventStorage;
 
-    public LikeDbStorage(JdbcTemplate jdbcTemplate) {
+    public LikeDbStorage(JdbcTemplate jdbcTemplate, EventStorage eventStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.eventStorage = eventStorage;
     }
 
     @Override
-    public void save(int film_id, int user_id) {
+    public void save(int filmId, int userId) {
         jdbcTemplate.update(saveLike,
-                film_id,
-                user_id);
+                filmId,
+                userId);
+        eventStorage.save(filmId, userId, LocalDateTime.now(), "LIKE", "ADD");
     }
 
     @Override
-    public void delete(int film_id, int user_id) {
+    public void delete(int filmId, int userId) {
         jdbcTemplate.update(deleteLike,
-                film_id,
-                user_id);
+                filmId,
+                userId);
+        eventStorage.save(filmId, userId, LocalDateTime.now(), "LIKE", "REMOVE");
     }
 
     @Override

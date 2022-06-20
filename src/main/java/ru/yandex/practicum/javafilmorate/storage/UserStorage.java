@@ -7,7 +7,7 @@ import java.util.Collection;
 public interface UserStorage {
     int save(User user);
 
-    void delete(Integer user_id);
+    void delete(Integer user);
 
     void update(User user);
 
