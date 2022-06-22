@@ -49,6 +49,7 @@ public class ReviewService {
     }
 
     public void deleteReview(Long id) {
+
         storage.deleteReview(id);
     }
 
