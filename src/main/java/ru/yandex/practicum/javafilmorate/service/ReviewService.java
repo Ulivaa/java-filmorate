@@ -57,17 +57,24 @@ public class ReviewService {
     }
 
     public List<Review> getReviewsOfFilm(Long filmId, int count) {
+        List<Review> reviews = null;
 
-        filmStorage.findFilmById(filmId.intValue()).orElseThrow(() ->
-                new FilmNotFoundException("Фильм с id " + filmId + " не найден"));
+        if (filmId != 0) {
+            filmStorage.findFilmById(filmId.intValue()).orElseThrow(() ->
+                    new FilmNotFoundException("Фильм с id " + filmId + " не найден"));
 
-        List<Review> reviews = storage.getReviewsOfFilm(filmId);
+            reviews = storage.getReviewsOfFilm(filmId);
+        } else {
+            reviews = storage.getReviews();
+
+        }
+
 
         if (reviews.size() > count) {
             return storage.getReviewsOfFilm(filmId).subList(0, count);
         }
 
-        return storage.getReviewsOfFilm(filmId);
+        return reviews;
     }
 
     public void putLike(Long reviewId, Long userId) {
@@ -99,6 +106,12 @@ public class ReviewService {
     }
 
     public void validate(Review review) {
+        filmStorage.findFilmById(review.getFilmId().intValue())
+                .orElseThrow(() -> new FilmNotFoundException("Фильма не суеществует с id " + review.getFilmId()));
+
+        userStorage.findUserById(review.getUserId().intValue())
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден с id " + review.getUserId()));
+
         if (review.getIsPositive() == null) {
             throw new IncorrectParameterException("isPositive");
         }
@@ -109,7 +122,6 @@ public class ReviewService {
 
         if (review.getUserId() == null) {
             throw new IncorrectParameterException("userId");
-
         }
     }
 }
