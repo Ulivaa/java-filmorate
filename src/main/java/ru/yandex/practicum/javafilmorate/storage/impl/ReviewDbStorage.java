@@ -35,7 +35,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void updateReview(Review review) {
+    public void updateReview(Review review) throws
+            DataAccessException {
         String sqlQuery = "UPDATE Reviews SET " +
                 "content = ?," +
                 "is_positive = ?," +
@@ -49,8 +50,15 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getUserId(),
                 review.getFilmId(),
-                review.getUserId(),
+                review.getUseful(),
                 review.getReviewId());
+    }
+
+    @Override
+    public List<Review> getReviews() {
+        String sqlQuery = "SELECT * FROM Reviews";
+
+        return jdbcTemplate.query(sqlQuery, this::reviewFromSQL);
     }
 
     @Override
