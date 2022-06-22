@@ -11,6 +11,7 @@ import ru.yandex.practicum.javafilmorate.storage.ReviewStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.FilmDbStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.UserDbStorage;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -19,7 +20,6 @@ public class ReviewService {
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
 
-    private static Long staticId = 1L;
 
     @Autowired
     public ReviewService(ReviewStorage reviewStorage,
@@ -100,8 +100,20 @@ public class ReviewService {
 
     private void addId(Review review) {
         if (review.getReviewId() == null) {
-            review.setReviewId(staticId);
-            staticId++;
+            List<Review> reviews = storage.getReviews();
+            Long newId = 1L;
+            reviews.sort(Comparator.comparingInt(review2 -> review2.getReviewId().intValue()));
+            System.out.println(reviews);
+
+            for (Review r : reviews) {
+                if (r.getReviewId() == newId) {
+                    newId++;
+                } else {
+                    break;
+                }
+            }
+
+            review.setReviewId(newId);
         }
     }
 
