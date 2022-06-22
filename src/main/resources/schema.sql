@@ -79,3 +79,6 @@ CREATE TABLE IF NOT EXISTS Reviews_reaction
     user_id   INTEGER REFERENCES Users (user_id),
     reaction  BOOLEAN
 );
+
+CREATE TABLE IF NOT EXISTS JUST_NULL
+();
