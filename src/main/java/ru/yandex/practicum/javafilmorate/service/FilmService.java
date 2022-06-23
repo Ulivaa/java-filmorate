@@ -3,17 +3,23 @@ package ru.yandex.practicum.javafilmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.javafilmorate.comparator.FilmComparator;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.model.Film;
+import ru.yandex.practicum.javafilmorate.model.GENRE;
+import ru.yandex.practicum.javafilmorate.model.SearchType;
 import ru.yandex.practicum.javafilmorate.storage.FilmStorage;
 import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 import ru.yandex.practicum.javafilmorate.storage.ReadFilmStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.HashSet;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -41,9 +47,9 @@ public class FilmService {
         return findFilmById(id);
     }
 
-    public void deleteFilm(Integer film_id) {
-        if (findFilmById(film_id) != null) {
-            filmStorage.delete(film_id);
+    public void deleteFilm(Integer filmId) {
+        if (findFilmById(filmId) != null) {
+            filmStorage.delete(filmId);
         }
     }
 
@@ -83,8 +89,8 @@ public class FilmService {
 
         // нужно для прохождения тестов
         Film updateFilm = findFilmById(film.getId());
-        if (film.getGenres()!= null && film.getGenres().isEmpty()){
-            if (updateFilm.getGenres() == null){
+        if (film.getGenres() != null && film.getGenres().isEmpty()) {
+            if (updateFilm.getGenres() == null) {
                 updateFilm.setGenres(new HashSet<>());
             }
         }
@@ -96,9 +102,9 @@ public class FilmService {
         return filmStorage.returnAllFilms();
     }
 
-    public void addUserLike(Integer film_id, Integer userId) {
-        if (findFilmById(film_id) != null && userService.findUserById(userId) != null) {
-            likeStorage.save(film_id, userId);
+    public void addUserLike(Integer filmId, Integer userId) {
+        if (findFilmById(filmId) != null && userService.findUserById(userId) != null) {
+            likeStorage.save(filmId, userId);
         }
     }
 
@@ -106,6 +112,12 @@ public class FilmService {
         if (findFilmById(id) != null && userService.findUserById(userId) != null) {
             likeStorage.delete(id, userId);
         }
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        userService.findUserById(userId);
+        userService.findUserById(friendId);
+        return readFilmStorage.getCommonFilms(userId, friendId);
     }
 
     public Collection<Film> firstFilmsWithCountLike(Integer count) {
@@ -134,4 +146,23 @@ public class FilmService {
     public Film findFilmById(int id) {
         return readFilmStorage.findFilmById(id).orElseThrow(() -> new FilmNotFoundException(String.format("Фильм № %d не найден", id)));
     }
+
+    public List<Film> search(String query, String by) {
+        List<String> byAsList = Arrays.stream(by.split(","))
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        if (byAsList.contains(SearchType.DIRECTOR.getType())) {
+            throw new UnsupportedOperationException("Поиск по этой категории не реализован");
+        }
+        if (byAsList.contains(SearchType.TITLE.getType())) {
+            return readFilmStorage.search(query);
+        }
+        throw new UnsupportedOperationException("Поиск по этой категории не реализован");
+    }
+
+    public Collection<Film> returnPopularFilm(int count, int genreId, int year) {
+        return filmStorage.getPopularFilms(count, genreId, year);
+
+    }
+    
 }

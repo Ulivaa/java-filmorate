@@ -3,6 +3,7 @@ package ru.yandex.practicum.javafilmorate.storage;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.javafilmorate.model.User;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Repository
