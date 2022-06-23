@@ -72,10 +72,8 @@ public class ReviewService {
 
 
         if (reviews.size() > count) {
-            reviews = storage.getReviewsOfFilm(filmId).subList(0, count);
+            return storage.getReviewsOfFilm(filmId).subList(0, count);
         }
-
-        reviews.sort(Comparator.comparingInt(Review::getUseful).reversed());
 
         return reviews;
     }
@@ -83,11 +81,7 @@ public class ReviewService {
     public void putLike(Long reviewId, Long userId) {
         userStorage.findUserById(userId.intValue()).orElseThrow(() -> new UserNotFoundException("user не найден"));
 
-        //увеличение рейтинга
-        Review review = storage.getReviewById(reviewId).get();
-        review.setUseful(review.getUseful() + 1);
-        updateReview(review);
-
+        deleteReaction(reviewId, userId);
 
         storage.putLike(reviewId, userId);
     }
@@ -95,38 +89,13 @@ public class ReviewService {
     public void putDislike(Long reviewId, Long userId) {
         userStorage.findUserById(userId.intValue()).orElseThrow(() -> new UserNotFoundException("user не найден"));
 
-        //уменьшение рейтинга
-        Review review = storage.getReviewById(reviewId).get();
-        Integer useful = review.getUseful();
-
-        review.setUseful(useful - 1);
-
-        updateReview(review);
-
         storage.putDislike(reviewId, userId);
     }
 
-
-    public void deleteDislike(Long reviewId, Long userId) {
+    public void deleteReaction(Long reviewId, Long userId) {
         userStorage.findUserById(userId.intValue()).orElseThrow(() -> new UserNotFoundException("user не найден"));
-
-        //возвращение рейтинга
-        Review review = storage.getReviewById(reviewId).get();
-        review.setUseful(review.getUseful() + 1);
-        updateReview(review);
 
         storage.deleteDislike(reviewId, userId);
-    }
-
-
-    public void deleteLike(Long reviewId, Long userId) {
-        userStorage.findUserById(userId.intValue()).orElseThrow(() -> new UserNotFoundException("user не найден"));
-
-        //возвращение рейтинга
-        Review review = storage.getReviewById(reviewId).get();
-        review.setUseful(review.getUseful() - 1);
-        updateReview(review);
-
         storage.deleteLike(reviewId, userId);
     }
 
