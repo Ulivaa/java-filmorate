@@ -39,6 +39,13 @@ public class ErrorHandler {
         );
     }
 
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnsupportedOperationException(final UnsupportedOperationException e) {
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
@@ -75,7 +82,7 @@ public class ErrorHandler {
         log.warn(e.getClass() + "  " + e.getMessage());
 
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                "Произошла непредвиденная ошибка: " + e.getMessage()
         );
     }
 }

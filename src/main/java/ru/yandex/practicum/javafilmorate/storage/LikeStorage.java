@@ -1,8 +1,15 @@
 package ru.yandex.practicum.javafilmorate.storage;
 
-public interface LikeStorage {
-    void save(int film_id, int user_id);
+import java.util.Map;
+import java.util.Set;
 
-    void delete(int film_id, int user_id);
+public interface LikeStorage {
+    void save(int filmId, int userId);
+
+    void delete(int filmId, int userId);
+
+    Set<Integer> allForUser(int userId);
+
+    Map<Integer, Set<Integer>> allExceptUser(int userId);
 
 }

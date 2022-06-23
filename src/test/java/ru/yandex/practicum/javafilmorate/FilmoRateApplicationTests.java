@@ -1,6 +1,7 @@
 package ru.yandex.practicum.javafilmorate;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -8,10 +9,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.model.MPA;
 import ru.yandex.practicum.javafilmorate.model.User;
+import ru.yandex.practicum.javafilmorate.storage.LikeStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.FilmDbStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.UserDbStorage;
 
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -22,6 +26,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 class FilmoRateApplicationTests {
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmDbStorage;
+    private final LikeStorage likeStorage;
 
     @Test
     public void testFindUserById() {
@@ -139,5 +144,26 @@ class FilmoRateApplicationTests {
                 .hasValueSatisfying(film ->
                         assertThat(film).hasFieldOrPropertyWithValue("description", "descr2")
                 );
+    }
+
+    @Test
+    public void testSearch() {
+        userStorage.save(new User(2, "asd", "asd@mail.ru", "asd", LocalDate.of(2001, 11, 23)));
+        int filmId1 = filmDbStorage.save(new Film(3, "film3", "descr3", LocalDate.of(2000, 4, 24), (short) 60, null, MPA.PG, null));
+        int filmId2 = filmDbStorage.save(new Film(4, "film4", "descr4", LocalDate.of(2000, 4, 24), (short) 60, null, MPA.PG, null));
+        likeStorage.save(filmId2, 1);
+        List<Film> films1 = filmDbStorage.search("film");
+        Assertions.assertEquals("film4", films1.iterator().next().getName(), "Первым должен быть пролайканый фильм");
+        Assertions.assertNotEquals(1, films1.size(), "Размер выдачи должен быть не 1");
+        List<Film> films2 = filmDbStorage.search("abc");
+        Assertions.assertEquals(0, films2.size(), "По этому запросу ничего не должно найти");
+        filmDbStorage.save(new Film(5, "abc", "descr4", LocalDate.of(2000, 4, 24), (short) 60, Collections.singleton(userStorage.findUserById(1).get()), MPA.PG, null));
+        List<Film> films3 = filmDbStorage.search("abc");
+        Assertions.assertEquals(1, films3.size(), "Теперь по этому запросу должно найти что-то");
+        likeStorage.save(filmId1, 1);
+        likeStorage.save(filmId1, 2);
+        List<Film> films4 = filmDbStorage.search("film");
+        Assertions.assertEquals("film3", films4.iterator().next().getName(), "Первым должен быть самый пролайканый фильм");
+
     }
 }
