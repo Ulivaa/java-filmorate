@@ -3,6 +3,7 @@ package ru.yandex.practicum.javafilmorate.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.javafilmorate.exception.FilmNotFoundException;
+import ru.yandex.practicum.javafilmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.javafilmorate.exception.ReviewDoesNotExistException;
 import ru.yandex.practicum.javafilmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.javafilmorate.model.Review;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.javafilmorate.storage.ReviewStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.FilmDbStorage;
 import ru.yandex.practicum.javafilmorate.storage.impl.UserDbStorage;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -17,6 +19,7 @@ public class ReviewService {
     private final ReviewStorage storage;
     private final FilmDbStorage filmStorage;
     private final UserDbStorage userStorage;
+
 
     @Autowired
     public ReviewService(ReviewStorage reviewStorage,
@@ -28,29 +31,51 @@ public class ReviewService {
     }
 
     public void addReview(Review review) {
+        addId(review);
+        validate(review);
         storage.addReview(review);
     }
 
     public void updateReview(Review review) {
-        storage.getReviewById(review.getReviewId()).orElseThrow(() -> new ReviewDoesNotExistException());
+        storage.getReviewById(review.getReviewId()).orElseThrow(ReviewDoesNotExistException::new);
 
+        validate(review);
         storage.updateReview(review);
+
+    }
+
+    public List<Review> getReviews() {
+        return storage.getReviews();
     }
 
     public void deleteReview(Long id) {
+
         storage.deleteReview(id);
     }
 
     public Review getReviewById(Long id) {
-        return storage.getReviewById(id).orElseThrow(() -> new ReviewDoesNotExistException());
+        return storage.getReviewById(id).orElseThrow(ReviewDoesNotExistException::new);
     }
 
     public List<Review> getReviewsOfFilm(Long filmId, int count) {
+        List<Review> reviews = null;
 
-        filmStorage.findFilmById(filmId.intValue()).orElseThrow(() ->
-                new FilmNotFoundException("Фильм с id " + filmId + " не найден"));
+        if (filmId != 0) {
+            filmStorage.findFilmById(filmId.intValue()).orElseThrow(() ->
+                    new FilmNotFoundException("Фильм с id " + filmId + " не найден"));
 
-        return storage.getReviewsOfFilm(filmId).subList(0, count);
+            reviews = storage.getReviewsOfFilm(filmId);
+        } else {
+            reviews = storage.getReviews();
+
+        }
+
+
+        if (reviews.size() > count) {
+            return storage.getReviewsOfFilm(filmId).subList(0, count);
+        }
+
+        return reviews;
     }
 
     public void putLike(Long reviewId, Long userId) {
@@ -72,5 +97,44 @@ public class ReviewService {
 
         storage.deleteDislike(reviewId, userId);
         storage.deleteLike(reviewId, userId);
+    }
+
+    private void addId(Review review) {
+        if (review.getReviewId() == null) {
+            List<Review> reviews = storage.getReviews();
+            Long newId = 1L;
+            reviews.sort(Comparator.comparingInt(review2 -> review2.getReviewId().intValue()));
+            System.out.println(reviews);
+
+            for (Review r : reviews) {
+                if (r.getReviewId() == newId) {
+                    newId++;
+                } else {
+                    break;
+                }
+            }
+
+            review.setReviewId(newId);
+        }
+    }
+
+    public void validate(Review review) {
+        filmStorage.findFilmById(review.getFilmId().intValue())
+                .orElseThrow(() -> new FilmNotFoundException("Фильма не суеществует с id " + review.getFilmId()));
+
+        userStorage.findUserById(review.getUserId().intValue())
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден с id " + review.getUserId()));
+
+        if (review.getIsPositive() == null) {
+            throw new IncorrectParameterException("isPositive");
+        }
+
+        if (review.getFilmId() == null) {
+            throw new IncorrectParameterException("filmId");
+        }
+
+        if (review.getUserId() == null) {
+            throw new IncorrectParameterException("userId");
+        }
     }
 }

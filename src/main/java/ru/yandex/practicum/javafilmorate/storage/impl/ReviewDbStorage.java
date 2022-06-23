@@ -41,7 +41,8 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public void updateReview(Review review) {
+    public void updateReview(Review review) throws
+            DataAccessException {
         String sqlQuery = "UPDATE Reviews SET " +
                 "content = ?," +
                 "is_positive = ?," +
@@ -55,15 +56,24 @@ public class ReviewDbStorage implements ReviewStorage {
                 review.getIsPositive(),
                 review.getUserId(),
                 review.getFilmId(),
-                review.getUserId(),
+                review.getUseful(),
                 review.getReviewId());
+    }
+
+    @Override
+    public List<Review> getReviews() {
+        String sqlQuery = "SELECT * FROM Reviews";
+
+        return jdbcTemplate.query(sqlQuery, this::reviewFromSQL);
     }
 
     @Override
     public void deleteReview(Long id) {
         Review review = getReviewById(id).orElseThrow();
-        String sqlQuery = "DELETE FROM Reviews WHERE review_id = ?";
+        String sqlQuery = "DELETE FROM Reviews_reaction WHERE review_id = ?";
+        jdbcTemplate.update(sqlQuery, id);
 
+        sqlQuery = "DELETE FROM Reviews WHERE review_id = ?";
         jdbcTemplate.update(sqlQuery, id);
         eventStorage.save(Math.toIntExact(id) , Math.toIntExact(review.getReviewId()) ,
                 LocalDateTime.now() , "REVIEW" , "REMOVE");

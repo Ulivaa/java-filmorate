@@ -1,11 +1,13 @@
 package ru.yandex.practicum.javafilmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
 public class Review {
+    @JsonProperty("id")
     private Long reviewId;
     private String content;
     private Boolean isPositive;
