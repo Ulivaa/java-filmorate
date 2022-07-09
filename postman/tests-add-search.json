@@ -1,0 +1,443 @@
+{
+	"info": {
+		"_postman_id": "bd862108-2336-498b-8507-ff900569517d",
+		"name": "add-search",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "add user1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 1,\r\n    \"login\": \"user1\",\r\n    \"email\": \"user1@user1.ru\",\r\n    \"name\": \"user1\",\r\n    \"birthday\": \"1996-04-16\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add user2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"id\": 2,\r\n    \"login\": \"user2\",\r\n    \"email\": \"user2@user2.ru\",\r\n    \"name\": \"user2\",\r\n    \"birthday\": \"1996-04-16\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/users",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add film1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"film1\",\r\n  \"description\": \"Description 1\",\r\n  \"releaseDate\": \"1900-01-01\",\r\n  \"duration\": 1000,\r\n  \"mpa\": {\r\n    \"id\": 1,\r\n    \"mpa\": \"G\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/films",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add film2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"film2\",\r\n  \"description\": \"Description 2\",\r\n  \"releaseDate\": \"1900-01-01\",\r\n  \"duration\": 1000,\r\n  \"mpa\": {\r\n    \"id\": 1,\r\n    \"mpa\": \"G\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/films",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "like film2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/2/like/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"2",
+						"like",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search film1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"});\r",
+							"pm.test(\"Film 1 found\", function() {\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.length).to.eql(1);\r",
+							"pm.expect(jsonData[0].name).to.eql('film1');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/search?query=film1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "film1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search film2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"});\r",
+							"pm.test(\"Film 2 found\", function() {\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.length).to.eql(1);\r",
+							"pm.expect(jsonData[0].name).to.eql('film2');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/search?query=film2",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "film2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search film",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"});\r",
+							"pm.test(\"Films found and film2 top\", function() {\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.length).to.eql(2);\r",
+							"pm.expect(jsonData[0].name).to.eql('film2');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/search?query=film",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "film"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "like film1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/1/like/1",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"1",
+						"like",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "like film1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/1/like/2",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"1",
+						"like",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "search film",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"pm.expect(pm.response.code).to.be.oneOf([200,201]);\r",
+							"});\r",
+							"pm.test(\"Films found and film1 top\", function() {\r",
+							"var jsonData = pm.response.json();\r",
+							"pm.expect(jsonData.length).to.eql(2);\r",
+							"pm.expect(jsonData[0].name).to.eql('film1');\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/films/search?query=film",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"films",
+						"search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "film"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

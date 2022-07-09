@@ -2,16 +2,18 @@ package ru.yandex.practicum.javafilmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.javafilmorate.model.Film;
 import ru.yandex.practicum.javafilmorate.service.FilmService;
 
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 
 @Slf4j
 @RestController
 public class FilmController {
-    private FilmService filmService;
+    private final FilmService filmService;
 
     @Autowired
     public FilmController(FilmService filmService) {
@@ -53,9 +55,26 @@ public class FilmController {
         filmService.deleteUserLike(id, userId);
     }
 
+    @GetMapping("/films/common")
+    public Collection<Film> commonFilm(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     @GetMapping("/films/popular")
-    public Collection<Film> returnFilmsWithCountLike(@RequestParam(defaultValue = "10") Integer count) {
-        return filmService.firstFilmsWithCountLike(count);
+    public Collection<Film> returnPopularFilms(@RequestParam(required = false, defaultValue = "10")
+                                            @Positive(message = "Count must be positive") int count,
+                                     @RequestParam(required = false, defaultValue = "0") int genreId,
+                                     @RequestParam(required = false, defaultValue = "0") int year) {
+        log.info("Get {} popular films", count);
+        return filmService.returnPopularFilm(count, genreId, year);
+    }
+
+    @GetMapping("/films/search")
+    public Collection<Film> search(
+            @RequestParam String query,
+            @RequestParam(defaultValue = "title") String by
+    ) {
+        return filmService.search(query, by);
     }
 }
 
